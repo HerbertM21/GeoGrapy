@@ -1,0 +1,88 @@
+{
+    "paises": [
+        {
+            "id": "paises_america",
+            "title": "Países de América",
+            "difficulty": "Fácil",
+            "xp": 100,
+            "icon": "america-preview.png",
+            "questions": [
+                {
+                    "question": "¿Qué país es este?",
+                    "image": "brasil-preview.png",
+                    "options": ["Brasil", "Argentina", "Colombia", "Perú"],
+                    "correct": "Brasil",
+                    "explanation": "Brasil es el país más grande de Sudamérica"
+                },
+                {
+                    "question": "¿Qué país es este?",
+                    "image": "suizapreview.png",
+                    "options": ["Chile", "Rumania", "Suiza", "Paraguay"],
+                    "correct": "Suiza",
+                    "explanation": "Suiza es un país europeo"
+                }
+            ]
+        }
+    ],
+    "capitales": [
+        {
+            "id": "capitales_mundo",
+            "title": "Capitales del Mundo",
+            "difficulty": "Medio",
+            "xp": 150,
+            "icon": "capitales_icon.png",
+            "questions": [
+                {
+                    "question": "¿Qué capital es esta?",
+                    "image": "tokyo.png",
+                    "options": ["Pekín", "Seúl", "Tokyo", "Bangkok"],
+                    "correct": "Tokyo",
+                    "explanation": "Tokyo es la capital de Japón"
+                },
+                {
+                    "question": "¿Qué capital es esta?",
+                    "image": "paris.png",
+                    "options": ["Londres", "París", "Roma", "Madrid"],
+                    "correct": "París",
+                    "explanation": "París es la capital de Francia"
+                }
+            ]
+        }
+    ],
+    "flora": [
+        {
+            "id": "flora_tropical",
+            "title": "Flora Tropical",
+            "difficulty": "Medio",
+            "xp": 120,
+            "icon": "resources/icon/flora_icon.png",
+            "questions": [
+                {
+                    "question": "¿Qué planta es esta?",
+                    "image": "orquidea.png",
+                    "options": ["Rosa", "Orquídea", "Tulipán", "Girasol"],
+                    "correct": "Orquídea",
+                    "explanation": "La orquídea es una flor tropical muy diversa"
+                }
+            ]
+        }
+    ],
+    "fauna": [
+        {
+            "id": "fauna_amazonica",
+            "title": "Fauna Amazónica",
+            "difficulty": "Difícil",
+            "xp": 200,
+            "icon": "fauna_icon.png",
+            "questions": [
+                {
+                    "question": "¿Qué animal es este?",
+                    "image": "resources/images/fauna/jaguar.png",
+                    "options": ["Puma", "Jaguar", "Leopardo", "Tigre"],
+                    "correct": "Jaguar",
+                    "explanation": "El jaguar es el felino más grande de América"
+                }
+            ]
+        }
+    ]
+}

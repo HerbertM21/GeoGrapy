@@ -1,0 +1,125 @@
+{
+    "paises": [
+      {
+        "nombre": "Chile",
+        "capital": "Santiago",
+        "densidad_poblacional": "25 per/km²",
+        "poblacion": "19 millones",
+        "superficie": "756,096 km²",
+        "moneda": "Peso chileno (CLP)",
+        "idiomas": ["Español"],
+        "animales_tipicos": ["Cóndor andino", "Puma", "Zorro culpeo"],
+        "bandera": "chile.png",
+        "dato_curioso": "El cóndor andino es una de las aves voladoras más grandes del mundo, con una envergadura de hasta 3.3 metros."
+      },
+      {
+        "nombre": "Brasil",
+        "capital": "Brasilia",
+        "densidad_poblacional": "25 per/km²",
+        "poblacion": "214 millones",
+        "superficie": "8,515,767 km²",
+        "moneda": "Real brasileño (BRL)",
+        "idiomas": ["Portugués"],
+        "animales_tipicos": ["Jaguar", "Capibara", "Tucán"],
+        "bandera": "brasil.png",
+        "dato_curioso": "El jaguar es el felino más grande de América y uno de los pocos grandes felinos que disfruta nadar."
+      },
+      {
+        "nombre": "Argentina",
+        "capital": "Buenos Aires",
+        "densidad_poblacional": "16 per/km²",
+        "poblacion": "45 millones",
+        "superficie": "2,780,400 km²",
+        "moneda": "Peso argentino (ARS)",
+        "idiomas": ["Español"],
+        "animales_tipicos": ["Guanaco", "Ñandú", "Yaguareté"],
+        "bandera": "argentina.png",
+        "dato_curioso": "El guanaco es una especie de camélido que puede sobrevivir en las condiciones extremas de la Puna argentina."
+      },
+      {
+        "nombre": "México",
+        "capital": "Ciudad de México",
+        "densidad_poblacional": "66 per/km²",
+        "poblacion": "126 millones",
+        "superficie": "1,964,375 km²",
+        "moneda": "Peso mexicano (MXN)",
+        "idiomas": ["Español"],
+        "animales_tipicos": ["Ajolote", "Jaguar", "Águila real"],
+        "bandera": "mexico.png",
+        "dato_curioso": "El ajolote es un anfibio que tiene la increíble capacidad de regenerar partes de su cuerpo, incluyendo órganos complejos."
+      },
+      {
+        "nombre": "España",
+        "capital": "Madrid",
+        "densidad_poblacional": "93 per/km²",
+        "poblacion": "47 millones",
+        "superficie": "505,990 km²",
+        "moneda": "Euro (EUR)",
+        "idiomas": ["Español"],
+        "animales_tipicos": ["Lince ibérico", "Oso pardo", "Águila imperial"],
+        "bandera": "espana.png",
+        "dato_curioso": "El lince ibérico es uno de los felinos más amenazados del mundo y solo se encuentra en España y Portugal."
+      },
+      {
+        "nombre": "Estados Unidos",
+        "capital": "Washington, D.C.",
+        "densidad_poblacional": "36 per/km²",
+        "poblacion": "331 millones",
+        "superficie": "9,831,510 km²",
+        "moneda": "Dólar estadounidense (USD)",
+        "idiomas": ["Inglés"],
+        "animales_tipicos": ["Bisonte", "Águila calva", "Oso negro"],
+        "bandera": "estados_unidos.png",
+        "dato_curioso": "El bisonte americano es el animal terrestre más grande de América del Norte y una vez estuvo al borde de la extinción."
+      },
+      {
+        "nombre": "Francia",
+        "capital": "París",
+        "densidad_poblacional": "122 per/km²",
+        "poblacion": "67 millones",
+        "superficie": "643,801 km²",
+        "moneda": "Euro (EUR)",
+        "idiomas": ["Francés"],
+        "animales_tipicos": ["Lobo gris", "Gallo galo", "Ciervo rojo"],
+        "bandera": "francia.png",
+        "dato_curioso": "El ciervo rojo es el mayor herbívoro terrestre de Francia."
+      },
+      {
+        "nombre": "Alemania",
+        "capital": "Berlín",
+        "densidad_poblacional": "232 per/km²",
+        "poblacion": "83 millones",
+        "superficie": "357,022 km²",
+        "moneda": "Euro (EUR)",
+        "idiomas": ["Alemán"],
+        "animales_tipicos": ["Lobo europeo", "Zorro rojo", "Ciervo europeo"],
+        "bandera": "alemania.png",
+        "dato_curioso": "El lobo europeo ha regresado a Alemania después de haber estado extinguido en el país durante más de 150 años."
+      },
+      {
+        "nombre": "Japón",
+        "capital": "Tokio",
+        "densidad_poblacional": "347 per/km²",
+        "poblacion": "125 millones",
+        "superficie": "377,975 km²",
+        "moneda": "Yen japonés (JPY)",
+        "idiomas": ["Japonés"],
+        "animales_tipicos": ["Macaco japonés", "Serow japonés", "Grulla de corona roja"],
+        "bandera": "japon.png",
+        "dato_curioso": "El macaco japonés, conocido como el mono de nieve, es el primate que vive más al norte, sobreviviendo en temperaturas bajo cero."
+      },
+      {
+        "nombre": "Australia",
+        "capital": "Canberra",
+        "densidad_poblacional": "3 per/km²",
+        "poblacion": "26 millones",
+        "superficie": "7,692,024 km²",
+        "moneda": "Dólar australiano (AUD)",
+        "idiomas": ["Inglés"],
+        "animales_tipicos": ["Canguro", "Koala", "Emú"],
+        "bandera": "australia.png",
+        "dato_curioso": "El canguro rojo es el marsupial más grande del mundo y solo se encuentra en Australia."
+      }
+    ]
+  }
+  
