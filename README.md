@@ -2,6 +2,8 @@
 
 Una aplicación educativa de geografía desarrollada con PyQt6.
 
+![Vista previa de la aplicación](resources/images/previewapp.png)
+
 ## Características
 - Quiz interactivo sobre países y capitales
 - Chat asistente de geografía
@@ -11,9 +13,3 @@ Una aplicación educativa de geografía desarrollada con PyQt6.
 ## Instalación
 ```bash
 pip install -r requirements.txt
-```
-
-## Uso
-```bash
-python run.py
-```
