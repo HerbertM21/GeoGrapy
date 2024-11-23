@@ -24,12 +24,11 @@
         require([
             "esri/Map",
             "esri/views/MapView",
-            "esri/widgets/BasemapGallery",
             "esri/Graphic",
             "esri/layers/GraphicsLayer",
             "esri/widgets/Popup"
-        ], function (Map, MapView, BasemapGallery, Graphic, GraphicsLayer, Popup) {
-            const map = new Map({ basemap: "streets-night-vector" });
+        ], function (Map, MapView, Graphic, GraphicsLayer, Popup) {
+            const map = new Map({ basemap: "topo-vector" });
 
             const view = new MapView({
                 container: "viewDiv",
@@ -43,12 +42,6 @@
                     }
                 }
             });
-
-            const basemapGallery = new BasemapGallery({
-                view: view
-            });
-
-            view.ui.add(basemapGallery, "top-right");
 
             view.highlightOptions = {
                 color: [0, 0, 0, 0],
@@ -87,6 +80,9 @@
                                 {
                                     type: "text",
                                     text: `
+                                        <div style="text-align: center; margin-bottom: 15px;">
+                                            <img src="${pais.bandera}" alt="Bandera de ${pais.nombre}" style="width: 150px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
                                         <p><strong>Capital:</strong> ${pais.capital}</p>
                                         <p><strong>Población:</strong> ${pais.poblacion}</p>
                                         <p><strong>Densidad poblacional:</strong> ${pais.densidad_poblacional}</p>

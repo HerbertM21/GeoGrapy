@@ -2,7 +2,7 @@
 
 Una aplicación educativa de geografía desarrollada con PyQt6.
 
-![Vista previa de la aplicación](resources/images/previewapp.png)
+![Vista previa de la aplicación](resources/images/preview2.png)
 
 ## Características
 - Quiz interactivo sobre países y capitales

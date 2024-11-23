@@ -2,6 +2,7 @@
     "paises": [
       {
         "nombre": "Chile",
+        "codigo": "cl",
         "capital": "Santiago",
         "densidad_poblacional": "25 per/km²",
         "poblacion": "19 millones",
@@ -9,11 +10,12 @@
         "moneda": "Peso chileno (CLP)",
         "idiomas": ["Español"],
         "animales_tipicos": ["Cóndor andino", "Puma", "Zorro culpeo"],
-        "bandera": "chile.png",
+        "bandera": "https://flagcdn.com/256x192/cl.png",
         "dato_curioso": "El cóndor andino es una de las aves voladoras más grandes del mundo, con una envergadura de hasta 3.3 metros."
       },
       {
         "nombre": "Brasil",
+        "codigo": "br",
         "capital": "Brasilia",
         "densidad_poblacional": "25 per/km²",
         "poblacion": "214 millones",
@@ -21,11 +23,12 @@
         "moneda": "Real brasileño (BRL)",
         "idiomas": ["Portugués"],
         "animales_tipicos": ["Jaguar", "Capibara", "Tucán"],
-        "bandera": "brasil.png",
+        "bandera": "https://flagcdn.com/256x192/br.png",
         "dato_curioso": "El jaguar es el felino más grande de América y uno de los pocos grandes felinos que disfruta nadar."
       },
       {
         "nombre": "Argentina",
+        "codigo": "ar",
         "capital": "Buenos Aires",
         "densidad_poblacional": "16 per/km²",
         "poblacion": "45 millones",
@@ -33,11 +36,12 @@
         "moneda": "Peso argentino (ARS)",
         "idiomas": ["Español"],
         "animales_tipicos": ["Guanaco", "Ñandú", "Yaguareté"],
-        "bandera": "argentina.png",
+        "bandera": "https://flagcdn.com/256x192/ar.png",
         "dato_curioso": "El guanaco es una especie de camélido que puede sobrevivir en las condiciones extremas de la Puna argentina."
       },
       {
         "nombre": "México",
+        "codigo": "mx",
         "capital": "Ciudad de México",
         "densidad_poblacional": "66 per/km²",
         "poblacion": "126 millones",
@@ -45,11 +49,12 @@
         "moneda": "Peso mexicano (MXN)",
         "idiomas": ["Español"],
         "animales_tipicos": ["Ajolote", "Jaguar", "Águila real"],
-        "bandera": "mexico.png",
+        "bandera": "https://flagcdn.com/256x192/mx.png",
         "dato_curioso": "El ajolote es un anfibio que tiene la increíble capacidad de regenerar partes de su cuerpo, incluyendo órganos complejos."
       },
       {
         "nombre": "España",
+        "codigo": "es",
         "capital": "Madrid",
         "densidad_poblacional": "93 per/km²",
         "poblacion": "47 millones",
@@ -57,11 +62,12 @@
         "moneda": "Euro (EUR)",
         "idiomas": ["Español"],
         "animales_tipicos": ["Lince ibérico", "Oso pardo", "Águila imperial"],
-        "bandera": "espana.png",
+        "bandera": "https://flagcdn.com/256x192/es.png",
         "dato_curioso": "El lince ibérico es uno de los felinos más amenazados del mundo y solo se encuentra en España y Portugal."
       },
       {
         "nombre": "Estados Unidos",
+        "codigo": "us",
         "capital": "Washington, D.C.",
         "densidad_poblacional": "36 per/km²",
         "poblacion": "331 millones",
@@ -69,11 +75,12 @@
         "moneda": "Dólar estadounidense (USD)",
         "idiomas": ["Inglés"],
         "animales_tipicos": ["Bisonte", "Águila calva", "Oso negro"],
-        "bandera": "estados_unidos.png",
+        "bandera": "https://flagcdn.com/256x192/us.png",
         "dato_curioso": "El bisonte americano es el animal terrestre más grande de América del Norte y una vez estuvo al borde de la extinción."
       },
       {
         "nombre": "Francia",
+        "codigo": "fr",
         "capital": "París",
         "densidad_poblacional": "122 per/km²",
         "poblacion": "67 millones",
@@ -81,11 +88,12 @@
         "moneda": "Euro (EUR)",
         "idiomas": ["Francés"],
         "animales_tipicos": ["Lobo gris", "Gallo galo", "Ciervo rojo"],
-        "bandera": "francia.png",
+        "bandera": "https://flagcdn.com/256x192/fr.png",
         "dato_curioso": "El ciervo rojo es el mayor herbívoro terrestre de Francia."
       },
       {
         "nombre": "Alemania",
+        "codigo": "de",
         "capital": "Berlín",
         "densidad_poblacional": "232 per/km²",
         "poblacion": "83 millones",
@@ -93,11 +101,12 @@
         "moneda": "Euro (EUR)",
         "idiomas": ["Alemán"],
         "animales_tipicos": ["Lobo europeo", "Zorro rojo", "Ciervo europeo"],
-        "bandera": "alemania.png",
+        "bandera": "https://flagcdn.com/256x192/de.png",
         "dato_curioso": "El lobo europeo ha regresado a Alemania después de haber estado extinguido en el país durante más de 150 años."
       },
       {
         "nombre": "Japón",
+        "codigo": "jp",
         "capital": "Tokio",
         "densidad_poblacional": "347 per/km²",
         "poblacion": "125 millones",
@@ -105,11 +114,12 @@
         "moneda": "Yen japonés (JPY)",
         "idiomas": ["Japonés"],
         "animales_tipicos": ["Macaco japonés", "Serow japonés", "Grulla de corona roja"],
-        "bandera": "japon.png",
+        "bandera": "https://flagcdn.com/256x192/jp.png",
         "dato_curioso": "El macaco japonés, conocido como el mono de nieve, es el primate que vive más al norte, sobreviviendo en temperaturas bajo cero."
       },
       {
         "nombre": "Australia",
+        "codigo": "au",
         "capital": "Canberra",
         "densidad_poblacional": "3 per/km²",
         "poblacion": "26 millones",
@@ -117,9 +127,8 @@
         "moneda": "Dólar australiano (AUD)",
         "idiomas": ["Inglés"],
         "animales_tipicos": ["Canguro", "Koala", "Emú"],
-        "bandera": "australia.png",
+        "bandera": "https://flagcdn.com/256x192/au.png",
         "dato_curioso": "El canguro rojo es el marsupial más grande del mundo y solo se encuentra en Australia."
       }
     ]
   }
-  
