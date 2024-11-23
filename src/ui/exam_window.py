@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                          QPushButton, QLabel, QProgressBar, QMessageBox, QScrollArea)
+                          QPushButton, QLabel, QProgressBar, QMessageBox, QScrollArea, QFrame)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize
 from PyQt6.QtGui import QPixmap, QFont
 from src.utils.constants import IMAGE_PATH
@@ -91,8 +91,7 @@ class ExamWindow(QMainWindow):
         self.progress = QProgressBar()
         self.progress.setRange(0, len(self.questions))
         self.progress.setValue(0)
-        self.progress.setMinimumHeight(30)
-        main_layout.addWidget(self.progress)
+        self.progress.setMinimumHeight(20)
 
         self.question_label = QLabel()
         self.question_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
@@ -135,15 +134,23 @@ class ExamWindow(QMainWindow):
                         }
                         QProgressBar {
                             border: none;
+                            border-radius: 10px;
                             background-color: #ddd;
                             text-align: center;
-                            border-radius: 15px;
+                            color: #2c3e50;
+                            font-weight: bold;
                         }
                         QProgressBar::chunk {
-                            background-color: #3498db;
-                            border-radius: 15px;
+                            background-color: qlineargradient(
+                                x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #3498db,
+                                stop:1 #2ecc71
+                            );
+                            border-radius: 10px;
                         }
                     """)
+
+        main_layout.addWidget(self.progress)
 
     def get_image_path(self, image_name: str) -> str:
         possible_paths = [
@@ -160,7 +167,7 @@ class ExamWindow(QMainWindow):
     def show_question(self):
         if self.current_question < len(self.questions):
             question = self.questions[self.current_question]
-            self.progress.setValue(self.current_question + 1)
+            self.progress.setValue(self.current_question)
             self.question_label.setText(question['question'])
 
             image_path = self.get_image_path(question['image'])
@@ -214,6 +221,7 @@ class ExamWindow(QMainWindow):
     def show_results(self):
         # Calcular resultados básicos
         total_questions = len(self.questions)
+        current_accuracy = (self.correct_answers / total_questions) * 100
 
         # Obtener recompensas usando el sistema de niveles
         rewards = self.level_system.calculate_exam_rewards(
@@ -230,6 +238,16 @@ class ExamWindow(QMainWindow):
         old_level_progress = self.level_system.get_level_progress(old_total_xp)
         new_level_progress = self.level_system.get_level_progress(new_total_xp)
 
+        # Calcular la nueva precisión media
+        total_exams = current_progress.get('exams_completed', 0)
+        old_accuracy = current_progress.get('average_accuracy', 0)
+
+        if total_exams == 0:
+            new_accuracy = current_accuracy
+        else:
+            # Calcular el promedio ponderado
+            new_accuracy = (old_accuracy * total_exams + current_accuracy) / (total_exams + 1)
+
         # Verificar si subió de nivel
         level_up_message = ""
         if new_level_progress.level > old_level_progress.level:
@@ -240,48 +258,45 @@ class ExamWindow(QMainWindow):
                 new_rewards
             )
 
-        # Crear mensaje de resultados detallado
-        result_message = f"""
-                ¡Examen completado!
-
-                Resultados:
-                ✓ Respuestas correctas: {self.correct_answers}/{total_questions}
-                ✓ Precisión: {rewards.accuracy:.1f}%
-
-                Experiencia ganada:
-                → XP Base: {rewards.base_xp}
-                → Bonus por completar: +{rewards.completion_bonus}
-                → Bonus por precisión: +{rewards.accuracy_bonus}
-                ━━━━━━━━━━━━━━━━━━━━━━━━
-                Total XP ganada: {rewards.total_xp}
-
-                Nivel actual: {new_level_progress.level}
-                Progreso: {new_level_progress.current_xp}/{new_level_progress.xp_for_next} XP
-                ({new_level_progress.progress_percentage:.1f}%)
-
-                {level_up_message}
-
-                {self._get_performance_message(rewards.accuracy)}
-                """
-
-        # Guardar progreso
+        # Guardar progreso actualizado
         progress_data = {
             'total_xp': new_total_xp,
             'level': new_level_progress.level,
             'last_exam_date': str(datetime.now()),
-            'exams_completed': current_progress.get('exams_completed', 0) + 1
+            'exams_completed': total_exams + 1,
+            'average_accuracy': new_accuracy,
+            'last_accuracy': current_accuracy,
+            'last_exam_score': self.correct_answers,
+            'last_exam_total': total_questions,
+            'difficulty': current_progress.get('difficulty', 'normal')  # Mantener dificultad actual
         }
+
+        # Mantener otros datos existentes
+        if current_progress:
+            # Actualizar historial de XP diaria
+            today_date = datetime.now().strftime("%Y-%m-%d")
+            daily_xp_key = f'daily_xp_{today_date}'
+            current_progress[daily_xp_key] = current_progress.get(daily_xp_key, 0) + rewards.total_xp
+
+            # Actualizar el progreso manteniendo datos existentes
+            current_progress.update(progress_data)
+            progress_data = current_progress
+
+        # Preparar datos para la ventana de resultados
+        results_data = {
+            'correct_answers': self.correct_answers,
+            'total_questions': total_questions,
+            'accuracy': rewards.accuracy,
+            'rewards': rewards,
+            'new_level': new_level_progress.level,
+            'progress': new_level_progress,
+            'performance_message': self._get_performance_message(rewards.accuracy)
+        }
+
+        # Guardar progreso antes de mostrar resultados
         self.progress_persistence.save_progress('current_user', progress_data)
 
-        # Mostrar resultados
-        results = QMessageBox(self)
-        results.setWindowTitle("Resultados del Examen")
-        results.setText(result_message)
-        results.setIcon(QMessageBox.Icon.Information)
-
-        menu_button = results.addButton("Volver al Menú", QMessageBox.ButtonRole.AcceptRole)
-        retry_button = results.addButton("Reintentar", QMessageBox.ButtonRole.RejectRole)
-
+        # Emit results to update the main window
         exam_results = {
             'category': self.exam_data.get('category', ''),
             'title': self.exam_data['title'],
@@ -293,14 +308,23 @@ class ExamWindow(QMainWindow):
             'old_level': old_level_progress.level
         }
 
-        result = results.exec()
-        clicked_button = results.clickedButton()
+        # Añadir mensaje de subida de nivel si corresponde
+        if new_level_progress.level > old_level_progress.level:
+            results_data['level_up_message'] = self._format_level_up_message(
+                old_level_progress.level,
+                new_level_progress.level,
+                new_rewards
+            )
 
-        if clicked_button == menu_button:
-            self.exam_completed.emit(exam_results)
-            self.close()
-        elif clicked_button == retry_button:
-            self.reset_exam()
+        # Mostrar ventana de resultados personalizada
+        results_window = ResultsWindow(results_data, self)
+        results_window.closed.connect(lambda: self.handle_results_closed(exam_results))
+        results_window.show()
+
+    def handle_results_closed(self, exam_results):
+        """Maneja el cierre de la ventana de resultados"""
+        self.exam_completed.emit(exam_results)
+        self.close()
 
     def _format_level_up_message(self, old_level: int, new_level: int, rewards) -> str:
         message = f"\n¡SUBISTE DE NIVEL!\n{old_level} → {new_level}\n"
@@ -391,22 +415,8 @@ class ExamWindow(QMainWindow):
                     }
                 """)
 
-        # Mostrar mensaje de feedback
-        feedback = QMessageBox(self)
-        feedback.setWindowTitle("Resultado")
-
-        # Explicacion del resultadio
-        if is_correct:
-            feedback.setText(f"¡Correcto! 🎉\n\n{explanation}")
-            feedback.setIcon(QMessageBox.Icon.Information)
-        else:
-            feedback.setText(f"Incorrecto 😔\n\n{explanation}")
-            feedback.setIcon(QMessageBox.Icon.Warning)
-
-        # Configurar tiempo de visualización y siguiente pregunta
-        QTimer.singleShot(2000, feedback.close)
-        feedback.show()
-        QTimer.singleShot(2500, self.next_question)
+        # Avanzar a la siguiente pregunta después de un breve delay
+        QTimer.singleShot(1000, self.next_question)
 
     def next_question(self):
         """Avanza a la siguiente pregunta o muestra resultados si es la última"""
@@ -432,3 +442,142 @@ class ExamWindow(QMainWindow):
         self.progress_persistence.save_progress('current_user', current_progress)
 
         event.accept()
+
+
+class ResultsWindow(QMainWindow):
+    closed = pyqtSignal()
+
+    def __init__(self, results_data, parent=None):
+        super().__init__(parent)
+        self.setup_ui(results_data)
+
+        # Centrar la ventana y hacerla más pequeña
+        screen = QApplication.primaryScreen().availableGeometry()
+        window_width = 200
+        window_height = 600
+        self.setMinimumSize(300, 400)
+        self.resize(window_width, window_height)
+
+        # Centrar en la pantalla
+        x = (screen.width() - window_width) // 2
+        y = (screen.height() - window_height) // 2
+        self.move(x, y)
+
+        self.setWindowTitle("Resultados")
+
+    def setup_ui(self, results_data):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+        layout.setSpacing(20)
+        layout.setContentsMargins(30, 30, 30, 30)
+
+        # Título con emoji
+        title = "¡Excelente! 🌟" if results_data['accuracy'] >= 75 else "¡Buen intento! 💪"
+        title_label = QLabel(title)
+        title_label.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_label.setStyleSheet("color: #2c3e50;")
+        layout.addWidget(title_label)
+
+        # Contenedor principal
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setSpacing(20)
+
+        # Resultados del examen
+        results_frame = self.create_section(
+            "Resultados",
+            [f"{results_data['correct_answers']}/{results_data['total_questions']} correctas",
+             f"{results_data['accuracy']:.0f}% precisión"],
+            "#3498db"
+        )
+        content_layout.addWidget(results_frame)
+
+        # XP ganada
+        xp_frame = self.create_section(
+            "XP Ganada",
+            [f"+{results_data['rewards'].total_xp} XP"],
+            "#27ae60"
+        )
+        content_layout.addWidget(xp_frame)
+
+        # Nivel (solo si subió de nivel)
+        if results_data.get('level_up_message'):
+            level_frame = self.create_section(
+                "¡Subiste de nivel!",
+                [f"Nivel {results_data['new_level']}"],
+                "#8e44ad"
+            )
+            content_layout.addWidget(level_frame)
+
+        layout.addWidget(content_widget)
+
+        # Botones
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(15)
+
+        retry_button = QPushButton("Reintentar")
+        menu_button = QPushButton("Continuar")
+
+        for button in [retry_button, menu_button]:
+            button.setMinimumHeight(40)
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: #3498db;
+                    color: white;
+                    border: none;
+                    border-radius: 20px;
+                    padding: 10px 20px;
+                    font-weight: bold;
+                    font-size: 14px;
+                }
+                QPushButton:hover {
+                    background-color: #2980b9;
+                }
+            """)
+
+        button_layout.addWidget(retry_button)
+        button_layout.addWidget(menu_button)
+
+        menu_button.clicked.connect(self.handle_menu)
+        retry_button.clicked.connect(self.handle_retry)
+
+        layout.addLayout(button_layout)
+
+    def create_section(self, title, items, color):
+        frame = QFrame()
+        frame.setStyleSheet(f"""
+            QFrame {{
+                background-color: white;
+                border-radius: 10px;
+                padding: 15px;
+            }}
+        """)
+
+        layout = QVBoxLayout(frame)
+        layout.setSpacing(5)
+
+        # Título de la sección
+        title_label = QLabel(title)
+        title_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        title_label.setStyleSheet(f"color: {color};")
+        layout.addWidget(title_label)
+
+        # Contenido
+        for item in items:
+            item_label = QLabel(item)
+            item_label.setFont(QFont("Arial", 16))
+            item_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            item_label.setStyleSheet("color: #2c3e50;")
+            layout.addWidget(item_label)
+
+        return frame
+
+    def handle_menu(self):
+        self.closed.emit()
+        self.close()
+
+    def handle_retry(self):
+        self.parent().reset_exam()
+        self.close()

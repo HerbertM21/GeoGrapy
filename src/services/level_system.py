@@ -5,6 +5,13 @@ from typing import List, Dict, Any
 import json
 from pathlib import Path
 
+"""
+@dataclass lo usamos para definir una clase de datos simple, que solo tiene atributos y no métodos.
+- Menos código para escribir
+- Más fácil de leer
+- Más fácil de mantener
+"""
+
 
 @dataclass
 class LevelProgress:
@@ -48,6 +55,12 @@ class Difficulty:
 
 class AbstractLevelSystem(ABC):
     """Clase base para el sistema de niveles"""
+
+    @property
+    @abstractmethod
+    def difficulty_name(self) -> str:
+        """Retorna el nombre de la dificultad actual"""
+        pass
 
     @abstractmethod
     def calculate_xp_for_level(self, level: int) -> int:
@@ -136,12 +149,17 @@ class ImprovedLevelSystem(AbstractLevelSystem):
             difficulty = 'normal'
 
         self.difficulty = self.DIFFICULTIES[difficulty]
-        self.difficulty_name = difficulty
+        self._difficulty_name = difficulty  # Cambiado a _difficulty_name
 
         # Inicializar con los valores de la dificultad seleccionada
         self.base_xp = self.difficulty.base_xp
         self.xp_multiplier = self.difficulty.xp_multiplier
         self.max_level = self.difficulty.max_level
+
+    @property
+    def difficulty_name(self) -> str:
+        """Retorna el nombre de la dificultad actual"""
+        return self._difficulty_name
 
     def calculate_xp_for_level(self, level: int) -> int:
         if level <= 1:
@@ -149,15 +167,18 @@ class ImprovedLevelSystem(AbstractLevelSystem):
         return int(self.base_xp * (self.xp_multiplier ** (level - 1)))
 
     def get_level_progress(self, total_xp: int) -> LevelProgress:
+        """Calcula el nivel actual y el progreso basado en la XP total"""
         current_level = 1
-        xp_for_next = self.calculate_xp_for_level(2)
         accumulated_xp = 0
+        xp_for_next = self.calculate_xp_for_level(2)
 
-        while total_xp >= accumulated_xp + xp_for_next and current_level < self.max_level:
+        # Encontrar el nivel actual
+        while accumulated_xp + xp_for_next <= total_xp and current_level < self.max_level:
             accumulated_xp += xp_for_next
             current_level += 1
             xp_for_next = self.calculate_xp_for_level(current_level + 1)
 
+        # Calcular XP en el nivel actual
         xp_in_current_level = total_xp - accumulated_xp
         progress_percentage = (xp_in_current_level / xp_for_next * 100) if xp_for_next > 0 else 100
 
@@ -179,34 +200,34 @@ class ImprovedLevelSystem(AbstractLevelSystem):
         # Recompensas base
         if level >= 5:
             rewards['titles'].append(f'{self.difficulty.name} Novato')
-            rewards['badges'].append(f'badge_{self.difficulty_name}_1')
+            rewards['badges'].append(f'Insignia {self.difficulty_name} 1')
         if level >= 10:
             rewards['titles'].append(f'{self.difficulty.name} Aprendiz')
-            rewards['badges'].append(f'badge_{self.difficulty_name}_2')
+            rewards['badges'].append(f'Insignia {self.difficulty_name} 2')
         if level >= 25:
             rewards['titles'].append(f'{self.difficulty.name} Experto')
-            rewards['badges'].append(f'badge_{self.difficulty_name}_3')
+            rewards['badges'].append(f'Insignia {self.difficulty_name} 3')
             rewards['features'].append('custom_profile')
         if level >= 50:
             rewards['titles'].append(f'{self.difficulty.name} Legendario')
-            rewards['badges'].append(f'badge_{self.difficulty_name}_4')
+            rewards['badges'].append(f'Insignia {self.difficulty_name} 4')
             rewards['features'].append('create_custom_quizzes')
 
         # Recompensas exclusivas para dificultad difícil
         if self.difficulty.exclusive_rewards:
             if level >= 5:
                 rewards['titles'].append('Maestro Intrépido')
-                rewards['badges'].append('badge_hardcore_1')
+                rewards['badges'].append('Corona de Espinas')
             if level >= 15:
                 rewards['titles'].append('Sabio de la Geografía')
-                rewards['badges'].append('badge_hardcore_2')
+                rewards['badges'].append('Pergamino de la Sabiduría')
             if level >= 30:
                 rewards['titles'].append('Leyenda Geográfica')
-                rewards['badges'].append('badge_hardcore_3')
+                rewards['badges'].append('Globo de Oro')
                 rewards['features'].append('custom_theme')
             if level >= 60:
                 rewards['titles'].append('Deidad Geográfica')
-                rewards['badges'].append('badge_hardcore_4')
+                rewards['badges'].append('Jardin del Edén')
                 rewards['features'].append('create_challenges')
 
         return LevelRewards(**rewards)

@@ -8,6 +8,7 @@ from src.ui.exam_window import ExamWindow
 from src.utils.constants import ICON_PATH
 from src.services.level_system import AbstractLevelSystem, JsonProgressPersistence, ImprovedLevelSystem
 from datetime import datetime
+from pathlib import Path
 
 class ExamButton(QPushButton):
     def __init__(self, exam_data):
@@ -74,10 +75,13 @@ class DifficultySelector(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.selected_difficulty = 'normal'  # Dificultad por defecto
+        # Intentar cargar la dificultad guardada
+        progress_persistence = JsonProgressPersistence(Path.home() / '.geograpy' / 'progress')
+        current_progress = progress_persistence.load_progress('current_user')
+        self.selected_difficulty = current_progress.get('difficulty', 'normal')
         self.setStyleSheet("""
             QDialog {
-                background-color: #232c38; /* Fondo gris claro */
+                background-color: #232c38;
             }
         """)
         self.setup_ui()
@@ -195,6 +199,9 @@ class ExamsPage(QWidget):
     def __init__(self, parent=None, level_system: AbstractLevelSystem = None,
                  progress_persistence=None):
         super().__init__(parent)
+        self.level_system = level_system
+        self.progress_persistence = progress_persistence
+        self.total_xp = 0  # Añadir esta línea
 
         # Inicializar sistemas
         self.level_system = level_system
@@ -220,13 +227,46 @@ class ExamsPage(QWidget):
     def load_user_progress(self):
         """Carga el progreso del usuario desde el sistema de persistencia"""
         progress_data = self.progress_persistence.load_progress('current_user')
-        total_xp = progress_data.get('total_xp', 0)
+
+        # Asegurarse de que todos los campos necesarios existan
+        if not progress_data:
+            # Obtener la dificultad del sistema de niveles si está disponible
+            difficulty = None
+            if isinstance(self.level_system, ImprovedLevelSystem):
+                difficulty = self.level_system.difficulty_name
+
+            progress_data = {
+                'total_xp': 0,
+                'level': 1,
+                'difficulty': difficulty or 'normal',
+                'last_update': str(datetime.now())
+            }
+            self.progress_persistence.save_progress('current_user', progress_data)
+
+        self.total_xp = progress_data.get('total_xp', 0)  # Cargar XP total
 
         # Obtener nivel actual y progreso
-        level_progress = self.level_system.get_level_progress(total_xp)
+        level_progress = self.level_system.get_level_progress(self.total_xp)
         self.nivel = level_progress.level
         self.exp = level_progress.current_xp
         self.exp_necesaria = level_progress.xp_for_next
+
+    def save_user_progress(self):
+        """Guarda el progreso actual del usuario"""
+        current_progress = self.progress_persistence.load_progress('current_user')
+
+        # Obtener la dificultad del sistema de niveles
+        difficulty = None
+        if isinstance(self.level_system, ImprovedLevelSystem):
+            difficulty = self.level_system.difficulty_name
+
+        current_progress.update({
+            'total_xp': self.calculate_total_xp(),
+            'level': self.nivel,
+            'last_update': str(datetime.now()),
+            'difficulty': difficulty or current_progress.get('difficulty', 'normal')
+        })
+        self.progress_persistence.save_progress('current_user', current_progress)
 
     def start_exam(self, exam_data):
         """Inicia un nuevo examen con el sistema de niveles configurado"""
@@ -290,7 +330,7 @@ class ExamsPage(QWidget):
 
         # Título para la sección de categorías
         categories_title = QLabel("Categorías")
-        categories_title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        categories_title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
         categories_title.setStyleSheet("color: #2c3e50;")
         scroll_layout.addWidget(categories_title)
 
@@ -300,7 +340,7 @@ class ExamsPage(QWidget):
 
         # Título para la sección de exámenes
         exams_title = QLabel("Exámenes disponibles")
-        exams_title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        exams_title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
         exams_title.setStyleSheet("color: #2c3e50;")
         scroll_layout.addWidget(exams_title)
 
@@ -430,28 +470,23 @@ class ExamsPage(QWidget):
             exam_button.clicked.connect(lambda c, data=exam_data: self.start_exam(data))
             self.exams_layout.addWidget(exam_button)
 
-    def save_user_progress(self):
-        """Guarda el progreso actual del usuario"""
-        current_progress = self.progress_persistence.load_progress('current_user')
-        current_progress.update({
-            'total_xp': self.calculate_total_xp(),
-            'level': self.nivel,
-            'last_update': str(datetime.now())
-        })
-        self.progress_persistence.save_progress('current_user', current_progress)
-
     def calculate_total_xp(self) -> int:
-        """Calcula la XP total acumulada del usuario"""
-        total = 0
-        for level in range(1, self.nivel):
-            total += self.level_system.calculate_xp_for_level(level)
-        total += self.exp
-        return total
+        """Retorna la XP total acumulada del usuario"""
+        return self.total_xp
 
     def on_exam_completed(self, result):
         """Maneja la finalización de un examen y actualiza el progreso"""
-        self.load_user_progress()
+        # Actualizar XP total
+        self.total_xp += result['xp_earned']
+
+        # Obtener nuevo progreso
+        level_progress = self.level_system.get_level_progress(self.total_xp)
+        self.nivel = level_progress.level
+        self.exp = level_progress.current_xp
+        self.exp_necesaria = level_progress.xp_for_next
+
         self.update_level_display()
+        self.save_user_progress()
         self.check_unlocked_features()
 
     def check_unlocked_features(self):

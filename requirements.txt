@@ -3,3 +3,4 @@ PyQt6-WebEngine
 openai
 python-dotenv
 pytest 
+PyQt6-Charts

@@ -8,6 +8,8 @@ from src.services.level_system import ImprovedLevelSystem, JsonProgressPersisten
 from pathlib import Path
 from src.ui.exams_page import DifficultySelector
 from datetime import datetime
+from src.ui.stats_page import StatsPage
+from src.ui.login_page import LoginWindow
 
 
 class MainWindow(QMainWindow):
@@ -29,6 +31,9 @@ class MainWindow(QMainWindow):
         # Inicializar páginas
         self.exams_page = None  # Se inicializará cuando se visite por primera vez
         self.chat_page = ChatPage()
+        # Página de estadísticas
+        self.stats_page = StatsPage()
+        self.ui.page_2_layout.addWidget(self.stats_page)
 
         # Agregar chat page a su layout
         self.ui.page_4_layout.addWidget(self.chat_page)
@@ -38,6 +43,7 @@ class MainWindow(QMainWindow):
 
         # Conectar el cambio de página
         self.ui.stackedWidget.currentChanged.connect(self.on_stackWidget_currentChanged)
+
 
         # Marcar el botón de inicio
         self.ui.home_btn_2.setChecked(True)
@@ -57,18 +63,28 @@ class MainWindow(QMainWindow):
     def handle_exams_page(self):
         """Maneja la navegación a la página de exámenes"""
         if self.exams_page is None:
-            # Primera visita a la página de exámenes
-            difficulty = self.show_difficulty_selector()
-            if difficulty:
-                self.level_system = ImprovedLevelSystem(difficulty=difficulty)
-                self.exams_page = ExamsPage(
-                    level_system=self.level_system,
-                    progress_persistence=self.progress_persistence
-                )
-                self.ui.page_3_layout.addWidget(self.exams_page)
-            else:
-                # Si el usuario cancela la selección de dificultad, volver a la página anterior
-                return
+            # Primero cargar el progreso existente
+            current_progress = self.progress_persistence.load_progress('current_user')
+            difficulty = current_progress.get('difficulty')
+
+            # Solo mostrar el selector si no hay dificultad guardada
+            if not difficulty:
+                difficulty = self.show_difficulty_selector()
+                if difficulty:
+                    # Guardar la dificultad seleccionada
+                    current_progress['difficulty'] = difficulty
+                    self.progress_persistence.save_progress('current_user', current_progress)
+                else:
+                    # Si el usuario cancela la selección, volver a la página anterior
+                    return
+
+            # Inicializar el sistema de niveles con la dificultad guardada o seleccionada
+            self.level_system = ImprovedLevelSystem(difficulty=difficulty)
+            self.exams_page = ExamsPage(
+                level_system=self.level_system,
+                progress_persistence=self.progress_persistence
+            )
+            self.ui.page_3_layout.addWidget(self.exams_page)
 
         self.ui.stackedWidget.setCurrentIndex(2)
 
@@ -96,6 +112,7 @@ class MainWindow(QMainWindow):
         return None  # Si el usuario cancela la selección
 
     def on_stackWidget_currentChanged(self, index):
+        # Mantener el código existente
         btn_list = self.ui.icon_only_widget.findChildren(QPushButton) \
                    + self.ui.full_menu_widget.findChildren(QPushButton)
         for btn in btn_list:
@@ -105,13 +122,26 @@ class MainWindow(QMainWindow):
             else:
                 btn.setAutoExclusive(True)
 
+        # Añadir la actualización de estadísticas
+        if index == 1:  # Índice de la página de estadísticas
+            self.stats_page.refresh_stats()
+
 
 def main():
     app = QApplication(sys.argv)
 
-    window = MainWindow()
-    window.show()
+    # Comprobar si existe un usuario guardado
+    user_data_path = Path.home() / '.geograpy' / 'progress' / 'user_data.json'
 
+    if user_data_path.exists():
+        # Si existe un usuario, ir directamente a la ventana principal
+        from src.main import MainWindow
+        window = MainWindow()
+    else:
+        # Si no existe usuario, mostrar login
+        window = LoginWindow()
+
+    window.show()
     sys.exit(app.exec())
 
 

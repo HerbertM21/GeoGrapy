@@ -121,11 +121,9 @@ class Ui_MainWindow(object):
 
     def setup_statistics_page(self):
         self.page_2 = QtWidgets.QWidget()
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.page_2)
-        self.label_5 = QtWidgets.QLabel("Estadísticas", parent=self.page_2)
-        self.label_5.setFont(QtGui.QFont("Arial", 15))
-        self.label_5.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
+        self.page_2_layout = QtWidgets.QVBoxLayout(self.page_2)  # Cambiar a QVBoxLayout
+        self.page_2_layout.setContentsMargins(0, 0, 0, 0)  # Eliminar márgenes
+        self.page_2_layout.setSpacing(0)  # Eliminar espacio entre widgets
         self.stackedWidget.addWidget(self.page_2)
 
     def setup_questions_page(self):
