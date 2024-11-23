@@ -103,7 +103,7 @@ class Ui_MainWindow(object):
         self.setup_questions_page()
         self.setup_chat_page()
         self.setup_credits_page()
-        self.setup_search_page()
+        #self.setup_search_page()
 
         self.verticalLayout_5.addWidget(self.stackedWidget)
 
@@ -147,6 +147,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addWidget(self.label_8, 0, 0, 1, 1)
         self.stackedWidget.addWidget(self.page_5)
 
+    """
     def setup_search_page(self):
         self.page_6 = QtWidgets.QWidget()
         self.gridLayout_7 = QtWidgets.QGridLayout(self.page_6)
@@ -155,6 +156,7 @@ class Ui_MainWindow(object):
         self.label_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.gridLayout_7.addWidget(self.label_9, 0, 0, 1, 1)
         self.stackedWidget.addWidget(self.page_6)
+    """
 
     def setup_full_menu(self):
         # Configuración del menú completo
@@ -251,7 +253,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.exit_btn_2)
 
     def setup_icon_menu(self):
-        # Similar al menú completo pero con solo iconos
+        # Menú completo pero con solo iconos
         self.icon_only_widget = QtWidgets.QWidget(parent=self.centralwidget)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.icon_only_widget)
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -307,7 +309,7 @@ class Ui_MainWindow(object):
         self.exit_btn_1 = QtWidgets.QPushButton(parent=self.icon_only_widget)
         self.exit_btn_1.setIcon(self.exit_btn_2.icon())
         self.exit_btn_1.setIconSize(QtCore.QSize(20, 20))
-        self.exit_btn_1.setStyleSheet(SidebarStyles.ICON_BUTTON_STYLE)
+        self.exit_btn_1.setStyleSheet(SidebarStyles.EXIT_BUTTON_STYLE)
         self.verticalLayout_3.addWidget(self.exit_btn_1)
 
     def setup_final_configurations(self, MainWindow):
@@ -338,7 +340,7 @@ class Ui_MainWindow(object):
             full_btn.toggled['bool'].connect(icon_btn.setChecked)
 
         # Conexiones para cambiar entre páginas
-        # Índices de páginas: 0=Home, 1=Estadísticas, 2=Preguntas, 3=Chat, 4=Créditos
+        # Índices de páginas: 0=Home, 1=EstadIsticas, 2=Preguntas, 3=Chat, 4=Creditos
         for i, (icon_btn, menu_btn) in enumerate(zip(self.icon_buttons, self.menu_buttons)):
             page_index = i  # El índice corresponde al orden de las páginas
             icon_btn.clicked.connect(lambda checked, idx=page_index: self.stackedWidget.setCurrentIndex(idx))

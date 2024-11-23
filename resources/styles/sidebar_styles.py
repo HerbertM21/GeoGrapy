@@ -11,7 +11,22 @@ class SidebarStyles:
             background-color: rgba(86, 101, 115, 0.5);
         }
         QPushButton:checked {
+            background-color: rgba(86, 101, 115, 0.5); /* Igual al hover */
             color: #fff;
+        }
+    """
+
+    EXIT_BUTTON_STYLE = """
+        QPushButton {
+            border: none;
+            border-radius: 3px;
+            text-align: center;
+            padding: 8px 0;
+            color: #fff;
+        }
+        
+        QPushButton:hover {
+            background-color: rgba(86, 101, 115, 0.5); /* Hover igual que los demás */
         }
     """
 
@@ -27,6 +42,7 @@ class SidebarStyles:
             background-color: rgba(86, 101, 115, 0.5);
         }
         QPushButton:checked {
+            background-color: rgba(86, 101, 115, 0.5); /* Igual al hover */
             color: #fff;
         }
     """

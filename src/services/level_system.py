@@ -47,7 +47,7 @@ class Difficulty:
 
 
 class AbstractLevelSystem(ABC):
-    """Clase abstracta base para el sistema de niveles"""
+    """Clase base para el sistema de niveles"""
 
     @abstractmethod
     def calculate_xp_for_level(self, level: int) -> int:
@@ -73,7 +73,7 @@ class AbstractLevelSystem(ABC):
 
 
 class AbstractProgressPersistence(ABC):
-    """Clase abstracta para la persistencia del progreso"""
+    """Clase base para la persistencia del progreso"""
 
     @abstractmethod
     def save_progress(self, user_id: str, progress_data: Dict[str, Any]) -> bool:
@@ -87,7 +87,19 @@ class AbstractProgressPersistence(ABC):
 
 
 class ImprovedLevelSystem(AbstractLevelSystem):
-    """Sistema de niveles mejorado con diferentes dificultades"""
+    """Sistema de niveles mejorado con diferentes dificultades
+
+    PROGRESION DE NIVELES:
+    - FACIL: Progresa de nivel mucho más rapido, sin embargo:
+        - NO SE PUEDE GANAR RECOMPENSAS EXCLUSIVAS
+        - SU MULTIPLICADOR DE RECOMPENSAS ES BAJO (1.0)
+
+    - NORMAL: Progresa de nivel de forma equilibrada, con:
+        - MULTIPLICADOR DE RECOMPENSAS MEDIO (1.2)
+        - NO TIENE RESTRICCIONES DE RECOMPENSAS
+
+
+    """
 
     DIFFICULTIES = {
         'easy': Difficulty(

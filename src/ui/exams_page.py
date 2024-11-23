@@ -7,7 +7,6 @@ from src.services.exam_data import get_exams_by_category
 from src.ui.exam_window import ExamWindow
 from src.utils.constants import ICON_PATH
 from src.services.level_system import AbstractLevelSystem, JsonProgressPersistence, ImprovedLevelSystem
-from pathlib import Path
 from datetime import datetime
 
 class ExamButton(QPushButton):
@@ -34,8 +33,8 @@ class ExamButton(QPushButton):
         if not pixmap.isNull():
             pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)
             image_label.setPixmap(pixmap)
-        image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        image_layout.addWidget(image_label)
+        image_label.setAlignment(Qt.AlignmentFlag.AlignCenter) # Centrar la imagen
+        image_layout.addWidget(image_label) # Añadir la imagen al layout
 
         title_label = QLabel(self.exam_data['title'])
         title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
@@ -76,6 +75,11 @@ class DifficultySelector(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.selected_difficulty = 'normal'  # Dificultad por defecto
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #232c38; /* Fondo gris claro */
+            }
+        """)
         self.setup_ui()
 
     def setup_ui(self):
@@ -128,11 +132,11 @@ class DifficultySelector(QDialog):
 
         card_layout = QVBoxLayout(card)
 
-        # Radio button para selección (título de la dificultad)
+        # Radio button para selección -título de la dificultad-
         radio = QRadioButton(diff_info['name'])
         radio.setStyleSheet("""
             QRadioButton {
-                color: black;  /* Texto en negro */
+                color: #232c38  /* Texto en negro */
             }
             QRadioButton::indicator {
                 width: 16px;
@@ -145,7 +149,7 @@ class DifficultySelector(QDialog):
             }
             QRadioButton::indicator::checked {
                 border: 1px solid #555;
-                background-color: #e67e22;
+                background-color: #3498db;
                 border-radius: 8px;
             }
         """)
@@ -158,11 +162,11 @@ class DifficultySelector(QDialog):
         # Descripción
         desc = QLabel(diff_info['description'])
         desc.setWordWrap(True)
-        desc.setStyleSheet("color: black;")  # Texto negro para descripción
+        desc.setStyleSheet("color: #505357;")  # Texto negro para descripción
 
         # Bonificaciones
         rewards = QLabel(f"Multiplicador de recompensas: x{diff_info['reward_multiplier']}")
-        rewards.setStyleSheet("color: black;")  # Texto negro para bonificaciones
+        rewards.setStyleSheet("color: #3498db; font-weight: Bold;")  # Texto negro para bonificaciones
 
         # Características exclusivas
         if diff_info['exclusive_rewards']:
@@ -192,7 +196,7 @@ class ExamsPage(QWidget):
                  progress_persistence=None):
         super().__init__(parent)
 
-        # Inicializar sistemas (requeridos)
+        # Inicializar sistemas
         self.level_system = level_system
         self.progress_persistence = progress_persistence
 
@@ -250,10 +254,10 @@ class ExamsPage(QWidget):
 
         # ScrollArea principal que contendrá todo excepto la barra de progreso
         main_scroll = QScrollArea()
-        main_scroll.setWidgetResizable(True)
-        main_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        main_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        main_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        main_scroll.setWidgetResizable(True) # El widget interno se ajusta al tamaño del ScrollArea
+        main_scroll.setFrameShape(QFrame.Shape.NoFrame) # Sin borde
+        main_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded) # Scroll vertical si es necesario
+        main_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) # Sin scroll horizontal
         main_scroll.setStyleSheet("""
             QScrollArea {
                 border: none;
@@ -281,15 +285,26 @@ class ExamsPage(QWidget):
         # Widget contenedor para el contenido scrolleable
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
-        scroll_layout.setSpacing(20)
+        scroll_layout.setSpacing(30)
         scroll_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Título para la sección de categorías
+        categories_title = QLabel("Categorías")
+        categories_title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        categories_title.setStyleSheet("color: #2c3e50;")
+        scroll_layout.addWidget(categories_title)
 
         # Crear secciones
         categories_section = self.create_categories_section()
-        exams_section = self.create_exams_section()
-
-        # Agregar secciones al layout scrolleable
         scroll_layout.addWidget(categories_section)
+
+        # Título para la sección de exámenes
+        exams_title = QLabel("Exámenes disponibles")
+        exams_title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        exams_title.setStyleSheet("color: #2c3e50;")
+        scroll_layout.addWidget(exams_title)
+
+        exams_section = self.create_exams_section()
         scroll_layout.addWidget(exams_section)
 
         # Configurar el ScrollArea
@@ -450,13 +465,13 @@ class ExamsPage(QWidget):
             self.enable_custom_profile()
 
     def enable_custom_quiz_creation(self):
-        """Habilita la creación de cuestionarios personalizados si está desbloqueado"""
-        # Implementar cuando se agregue la funcionalidad
+        """Creación de cuestionarios personalizados desbloqueado"""
+        # PRONTO NO ES PRIORIDAD
         pass
 
     def enable_custom_profile(self):
-        """Habilita la personalización del perfil si está desbloqueado"""
-        # Implementar cuando se agregue la funcionalidad
+        """Personalización del perfil desbloqueado"""
+        # NO ES PRIORIDAD
         pass
 
     def create_level_section(self):

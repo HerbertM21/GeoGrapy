@@ -11,6 +11,18 @@ from pathlib import Path
 from src.services.chat_service import ChatService
 from PyQt6.QtGui import QPixmap, QPainter
 
+
+# Clase para añadir la funcionalidad de enviar un mensaje al presionar Enter
+class CustomTextEdit(QTextEdit):
+    enter_pressed = pyqtSignal()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return and not event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            self.enter_pressed.emit()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
 class MessageWidget(QFrame):
     def __init__(self, text, is_user=True, parent=None):
         super().__init__(parent)
@@ -24,7 +36,7 @@ class MessageWidget(QFrame):
         layout.setSpacing(0)
 
         if not self.is_user:
-            # Profile picture for bot
+            # IMAGEN BOT UVA
             profile_pic = QLabel()
             pixmap = QPixmap(str(ICON_PATH / "uva_fondo.png"))
             scaled_pixmap = pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio,
@@ -37,7 +49,7 @@ class MessageWidget(QFrame):
                     background-color: transparent;
                 }
             """)
-            # Create mask for circular image
+            # SE CREA CONTORNO CIRCULAR
             mask = QPixmap(40, 40)
             mask.fill(Qt.GlobalColor.transparent)
             painter = QPainter(mask)
@@ -107,12 +119,10 @@ class ChatPage(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # CHAT
         self.chat_area = QScrollArea()
         self.chat_area.setWidgetResizable(True)
         self.chat_area.setStyleSheet(self.get_chat_area_style())
 
-        # CONTENEDOR MENSAJE
         self.message_container = QWidget()
         self.message_layout = QVBoxLayout(self.message_container)
         self.message_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -120,25 +130,26 @@ class ChatPage(QWidget):
         self.message_layout.setContentsMargins(0, 10, 0, 10)
         self.chat_area.setWidget(self.message_container)
 
-        # ENTRADA
         input_panel = QWidget()
-        input_panel.setFixedHeight(60)
+        input_panel.setFixedHeight(80)
         input_panel.setStyleSheet(self.get_input_panel_style())
 
         input_layout = QHBoxLayout(input_panel)
         input_layout.setContentsMargins(10, 5, 10, 5)
         input_layout.setSpacing(10)
 
-        # AREA ENTRADA
-        self.input_area = QTextEdit()
+        self.input_area = CustomTextEdit()
         self.input_area.setPlaceholderText("Escribe tu mensaje aquí...")
-        self.input_area.setFixedHeight(40)
+        self.input_area.setFixedHeight(50)
         self.input_area.setStyleSheet(self.get_input_area_style())
 
-        # ENVIAR
+        # Conectar la señal enter_pressed con send_message
+        self.input_area.enter_pressed.connect(self.send_message)
+
         self.send_button = QPushButton("Enviar")
         self.send_button.setFixedSize(60, 35)
         self.send_button.setStyleSheet(self.get_send_button_style())
+        self.send_button.clicked.connect(self.send_message)
 
         input_layout.addWidget(self.input_area)
         input_layout.addWidget(self.send_button)
@@ -146,11 +157,8 @@ class ChatPage(QWidget):
         main_layout.addWidget(self.chat_area)
         main_layout.addWidget(input_panel)
 
-        # Conectar
-        self.send_button.clicked.connect(self.send_message)
-
-        # MENSAJE BIENVENIDA
         self.add_message("¡Hola! Soy Grapy, tu asistente de geografía. ¿En qué puedo ayudarte?", False)
+
 
     def send_message(self):
         text = self.input_area.toPlainText().strip()

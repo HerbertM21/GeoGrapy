@@ -1,3 +1,5 @@
+# NO SE USA EN LA APLICACION ORIGINAL
+
 import json
 from pathlib import Path
 from src.utils.constants import COUNTRIES_DATA

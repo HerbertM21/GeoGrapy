@@ -10,7 +10,7 @@ class MapService:
         """
         Carga y procesa los datos del mapa desde archivos JSON y HTML.
 
-        Returns:
+        Retorno:
             str: Contenido HTML del mapa con los datos insertados
         """
         try:

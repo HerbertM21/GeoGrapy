@@ -95,7 +95,7 @@ class ExamWindow(QMainWindow):
         main_layout.addWidget(self.progress)
 
         self.question_label = QLabel()
-        self.question_label.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        self.question_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
         self.question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.question_label.setWordWrap(True)
         self.question_label.setStyleSheet("""
@@ -186,6 +186,7 @@ class ExamWindow(QMainWindow):
             for option in options:
                 button = QPushButton(option)
                 button.setMinimumHeight(50)
+                button.setMinimumWidth(15)  # Ajusta el ancho minimo
                 button.clicked.connect(lambda checked, opt=option: self.check_answer(opt))
                 button.setStyleSheet("""
                                 QPushButton {
