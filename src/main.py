@@ -120,7 +120,6 @@ class MainWindow(QMainWindow):
         return None  # Si el usuario cancela la selección
 
     def on_stackWidget_currentChanged(self, index):
-        # Mantener el código existente
         btn_list = self.ui.icon_only_widget.findChildren(QPushButton) \
                    + self.ui.full_menu_widget.findChildren(QPushButton)
         for btn in btn_list:
