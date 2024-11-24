@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLineEdit,
                             QPushButton, QLabel, QFrame, QGraphicsBlurEffect)
-from PyQt6.QtGui import QFont, QFontDatabase, QPixmap, QColor
+from PyQt6.QtGui import QFont, QShortcut,QFontDatabase, QPixmap, QColor
 from PyQt6.QtCore import Qt, QSize
 from pathlib import Path
 import json
@@ -90,6 +90,9 @@ class LoginWindow(QMainWindow):
         self.login_button = QPushButton("Comenzar")
         self.login_button.setMinimumHeight(40)
         self.login_button.clicked.connect(self.handle_login)
+        shortcut = QShortcut(Qt.Key.Key_Return, self)
+        shortcut.activated.connect(self.handle_login)
+
 
         # Añadir widgets al layout
         login_layout.addWidget(logo_label)
