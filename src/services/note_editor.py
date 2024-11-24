@@ -4,9 +4,12 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from datetime import datetime
 from src.services.notes_persistence import NotesSystem
-
+from PyQt6.QtCore import pyqtSignal
 
 class NoteEditor(QMainWindow):
+    # Añadir señal para notificar cuando una nota se guarda
+    note_saved = pyqtSignal()
+
     def __init__(self, category=None, note_data=None, parent=None):
         super().__init__(parent)
         self.category = category
@@ -51,7 +54,7 @@ class NoteEditor(QMainWindow):
         """)
         layout.addWidget(title)
 
-        # Función helper para crear grupos de form
+        # Función para crear grupos de formulario
         def create_form_group(label_text, widget, placeholder_text):
             group = QWidget()
             group_layout = QVBoxLayout(group)
@@ -60,7 +63,7 @@ class NoteEditor(QMainWindow):
 
             label = QLabel(label_text)
             label.setFont(QFont("Segoe UI", 14))
-            label.setStyleSheet("color: #111;")
+            label.setStyleSheet("color: #111; font-weight: bold;")
 
             widget.setPlaceholderText(placeholder_text)
             widget.setStyleSheet("""
@@ -104,7 +107,7 @@ class NoteEditor(QMainWindow):
         save_button.setStyleSheet("""
             QPushButton {
                 padding: 12px;
-                background-color: #111;
+                background-color: #3498db;
                 color: white;
                 border: none;
                 border-radius: 6px;
@@ -112,7 +115,7 @@ class NoteEditor(QMainWindow):
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: #222;
+                background-color: #2980b9;
             }
         """)
         save_button.clicked.connect(self.save_note)
@@ -145,13 +148,52 @@ class NoteEditor(QMainWindow):
         title = self.title_input.text().strip()
         content = self.editor.toPlainText().strip()
 
-        if not all([category, title, content]):
-            QMessageBox.warning(
-                self,
-                "Campos incompletos",
-                "Por favor, completar todos los campos (Categoria, titulo y contenido)."
-            )
+        # Estilo base para QMessageBox
+        message_box_style = """
+            QMessageBox {
+                background-color: white;
+            }
+            QMessageBox QLabel {
+                color: #111;
+                font-size: 14px;
+            }
+            QMessageBox QPushButton {
+                padding: 6px 12px;
+                border-radius: 4px;
+                min-width: 70px;
+                background-color: #3498db;
+                color: white;
+                border: none;
+            }
+            QMessageBox QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """
+
+        # Validar que título y contenido no estén vacíos
+        if not all([title, content]):
+            msg = QMessageBox(self)
+            msg.setStyleSheet(message_box_style)
+            msg.setIcon(QMessageBox.Icon.Warning)
+            msg.setWindowTitle("Campos incompletos")
+            msg.setText("Por favor, complete al menos el título y el contenido de la nota.")
+            msg.exec()
             return
+
+        # Si la categoría es "General", la convertimos a cadena vacía
+        if category.lower() == "general":
+            msg = QMessageBox(self)
+            msg.setStyleSheet(message_box_style)
+            msg.setIcon(QMessageBox.Icon.Information)
+            msg.setWindowTitle("Sugerencia")
+            msg.setText("Para crear una nota en la categoría 'General', deje el campo de categoría vacío.")
+            msg.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+
+            if msg.exec() == QMessageBox.StandardButton.Ok:
+                self.category_input.clear()
+                category = ""
+            else:
+                return
 
         # Actualizar datos de la nota
         note_data = {
@@ -166,6 +208,32 @@ class NoteEditor(QMainWindow):
         else:
             note_data['created_at'] = datetime.now().isoformat()
 
-        # Guardar la nota
-        self.notes_system.add_note(category, "default", note_data)
-        self.close()
+        try:
+            # Intentar guardar la nota
+            if self.notes_system.add_note(category, "default", note_data):
+                # Emitir señal de nota guardada
+                self.note_saved.emit()
+                # Cerrar la ventana
+                self.close()
+            else:
+                msg = QMessageBox(self)
+                msg.setStyleSheet(message_box_style)
+                msg.setIcon(QMessageBox.Icon.Critical)
+                msg.setWindowTitle("Error")
+                msg.setText("No se pudo guardar la nota. Por favor, intente nuevamente.")
+                msg.exec()
+        except KeyError:
+            msg = QMessageBox(self)
+            msg.setStyleSheet(message_box_style)
+            msg.setIcon(QMessageBox.Icon.Warning)
+            msg.setWindowTitle("Error de categoría")
+            msg.setText("Ha ocurrido un error con la categoría seleccionada.\n"
+                        "Si desea crear una nota en la categoría general, deje el campo de categoría vacío.")
+            msg.exec()
+        except Exception as e:
+            msg = QMessageBox(self)
+            msg.setStyleSheet(message_box_style)
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.setWindowTitle("Error")
+            msg.setText(f"Ocurrió un error inesperado al guardar la nota: {str(e)}")
+            msg.exec()

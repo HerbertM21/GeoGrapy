@@ -296,7 +296,7 @@ class StatsPage(QWidget):
             background: transparent;
             padding: 2px 0px;
         """)
-        category_label.setFixedHeight(20)  # Altura fija para la categoría
+        category_label.setFixedHeight(20)
 
         # Texto principal
         text_label = QLabel(text)
