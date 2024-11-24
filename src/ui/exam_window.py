@@ -3,10 +3,12 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize
 from PyQt6.QtGui import QPixmap, QFont
 from src.utils.constants import IMAGE_PATH
+from src.services.exam_score import ExamScore
 from src.services.level_system import AbstractLevelSystem, ImprovedLevelSystem, JsonProgressPersistence
 from pathlib import Path
 import random
 from datetime import datetime
+
 
 class ExamWindow(QMainWindow):
     exam_completed = pyqtSignal(dict)
@@ -22,12 +24,19 @@ class ExamWindow(QMainWindow):
         # Inicializar sistema de niveles y persistencia
         self.level_system = level_system or ImprovedLevelSystem()
         if progress_persistence is None:
-            # Usar directorio por defecto si no se proporciona
-            # ~/.geograpy/progress
             save_dir = Path.home() / '.geograpy' / 'progress'
             self.progress_persistence = JsonProgressPersistence(save_dir)
         else:
             self.progress_persistence = progress_persistence
+
+        # Cargar último resultado del usuario para este examen
+        self.current_progress = self.progress_persistence.load_progress('current_user')
+        self.last_exam_score = None
+        if self.current_progress:
+            last_correct = self.current_progress.get('last_exam_score', 0)
+            last_total = self.current_progress.get('last_exam_total', 1)
+            last_xp = self.current_progress.get('last_exam_xp', 0)
+            self.last_exam_score = ExamScore(last_correct, last_total, last_xp)
 
         random.shuffle(self.questions)
         self.setWindowTitle(exam_data['title'])
@@ -219,36 +228,47 @@ class ExamWindow(QMainWindow):
                 self.options_layout.addWidget(button)
 
     def show_results(self):
-        # Calcular resultados básicos
-        total_questions = len(self.questions)
-        current_accuracy = (self.correct_answers / total_questions) * 100
-
-        # Obtener recompensas usando el sistema de niveles
-        rewards = self.level_system.calculate_exam_rewards(
-            exam_base_xp=self.exam_data['xp'],
+        # Crear objeto ExamScore para el intento actual
+        current_score = ExamScore(
             correct_answers=self.correct_answers,
-            total_questions=total_questions
+            total_questions=len(self.questions),
+            xp_earned=self.exam_data['xp']
         )
 
-        # Cargar progreso actual y calcular nuevo nivel
-        current_progress = self.progress_persistence.load_progress('current_user')
-        old_total_xp = current_progress.get('total_xp', 0)
+        # Comparar con el último intento si existe
+        comparison_message = ""
+        if self.last_exam_score:
+            if current_score > self.last_exam_score:
+                comparison_message = "¡Has mejorado desde tu último intento! 🎉"
+            elif current_score == self.last_exam_score:
+                comparison_message = "Mantuviste el mismo nivel que tu último intento 🎯"
+            else:
+                comparison_message = "Sigue practicando para superar tu último intento 💪"
+
+        # Calcular recompensas usando el sistema de niveles
+        rewards = self.level_system.calculate_exam_rewards(
+            exam_base_xp=current_score.xp_earned,
+            correct_answers=current_score.correct_answers,
+            total_questions=current_score.total_questions
+        )
+
+        # Cargar y actualizar progreso
+        old_total_xp = self.current_progress.get('total_xp', 0)
         new_total_xp = old_total_xp + rewards.total_xp
 
         old_level_progress = self.level_system.get_level_progress(old_total_xp)
         new_level_progress = self.level_system.get_level_progress(new_total_xp)
 
-        # Calcular la nueva precisión media
-        total_exams = current_progress.get('exams_completed', 0)
-        old_accuracy = current_progress.get('average_accuracy', 0)
+        # Calcular nueva precisión media usando ExamScore
+        total_exams = self.current_progress.get('exams_completed', 0)
+        old_accuracy = self.current_progress.get('average_accuracy', 0)
 
         if total_exams == 0:
-            new_accuracy = current_accuracy
+            new_accuracy = current_score.get_accuracy()
         else:
-            # Calcular el promedio ponderado
-            new_accuracy = (old_accuracy * total_exams + current_accuracy) / (total_exams + 1)
+            new_accuracy = (old_accuracy * total_exams + current_score.get_accuracy()) / (total_exams + 1)
 
-        # Verificar si subió de nivel
+        # Verificar subida de nivel
         level_up_message = ""
         if new_level_progress.level > old_level_progress.level:
             new_rewards = self.level_system.get_level_rewards(new_level_progress.level)
@@ -265,58 +285,52 @@ class ExamWindow(QMainWindow):
             'last_exam_date': str(datetime.now()),
             'exams_completed': total_exams + 1,
             'average_accuracy': new_accuracy,
-            'last_accuracy': current_accuracy,
-            'last_exam_score': self.correct_answers,
-            'last_exam_total': total_questions,
-            'difficulty': current_progress.get('difficulty', 'normal')  # Mantener dificultad actual
+            'last_accuracy': current_score.get_accuracy(),
+            'last_exam_score': current_score.correct_answers,
+            'last_exam_total': current_score.total_questions,
+            'last_exam_xp': current_score.xp_earned,
+            'difficulty': self.current_progress.get('difficulty', 'normal')
         }
 
-        # Mantener otros datos existentes
-        if current_progress:
-            # Actualizar historial de XP diaria
+        # Actualizar el progreso manteniendo datos existentes
+        if self.current_progress:
             today_date = datetime.now().strftime("%Y-%m-%d")
             daily_xp_key = f'daily_xp_{today_date}'
-            current_progress[daily_xp_key] = current_progress.get(daily_xp_key, 0) + rewards.total_xp
-
-            # Actualizar el progreso manteniendo datos existentes
-            current_progress.update(progress_data)
-            progress_data = current_progress
+            self.current_progress[daily_xp_key] = self.current_progress.get(daily_xp_key, 0) + rewards.total_xp
+            self.current_progress.update(progress_data)
+            progress_data = self.current_progress
 
         # Preparar datos para la ventana de resultados
         results_data = {
-            'correct_answers': self.correct_answers,
-            'total_questions': total_questions,
-            'accuracy': rewards.accuracy,
+            'correct_answers': current_score.correct_answers,
+            'total_questions': current_score.total_questions,
+            'accuracy': current_score.get_accuracy(),
             'rewards': rewards,
             'new_level': new_level_progress.level,
             'progress': new_level_progress,
-            'performance_message': self._get_performance_message(rewards.accuracy)
+            'performance_message': self._get_performance_message(current_score.get_accuracy()),
+            'comparison_message': comparison_message
         }
 
-        # Guardar progreso antes de mostrar resultados
+        # Guardar progreso
         self.progress_persistence.save_progress('current_user', progress_data)
 
-        # Emit results to update the main window
+        # Emitir resultados
         exam_results = {
             'category': self.exam_data.get('category', ''),
             'title': self.exam_data['title'],
             'xp_earned': rewards.total_xp,
-            'correct_answers': self.correct_answers,
-            'total_questions': total_questions,
-            'accuracy': rewards.accuracy,
+            'correct_answers': current_score.correct_answers,
+            'total_questions': current_score.total_questions,
+            'accuracy': current_score.get_accuracy(),
             'new_level': new_level_progress.level,
             'old_level': old_level_progress.level
         }
 
-        # Añadir mensaje de subida de nivel si corresponde
-        if new_level_progress.level > old_level_progress.level:
-            results_data['level_up_message'] = self._format_level_up_message(
-                old_level_progress.level,
-                new_level_progress.level,
-                new_rewards
-            )
+        if level_up_message:
+            results_data['level_up_message'] = level_up_message
 
-        # Mostrar ventana de resultados personalizada
+        # Mostrar ventana de resultados
         results_window = ResultsWindow(results_data, self)
         results_window.closed.connect(lambda: self.handle_results_closed(exam_results))
         results_window.show()
@@ -451,11 +465,11 @@ class ResultsWindow(QMainWindow):
         super().__init__(parent)
         self.setup_ui(results_data)
 
-        # Centrar la ventana y hacerla más pequeña
+        # Centrar la ventana
         screen = QApplication.primaryScreen().availableGeometry()
-        window_width = 200
+        window_width = 400
         window_height = 600
-        self.setMinimumSize(300, 400)
+        self.setMinimumSize(500, 700)
         self.resize(window_width, window_height)
 
         # Centrar en la pantalla
@@ -480,6 +494,23 @@ class ResultsWindow(QMainWindow):
         title_label.setStyleSheet("color: #2c3e50;")
         layout.addWidget(title_label)
 
+        # Mensaje de comparación
+        if 'comparison_message' in results_data and results_data['comparison_message']:
+            comparison_label = QLabel(results_data['comparison_message'])
+            comparison_label.setFont(QFont("Arial", 14))
+            comparison_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            comparison_label.setWordWrap(True)
+            comparison_label.setStyleSheet("""
+                QLabel {
+                    color: #2c3e50;
+                    background-color: rgba(52, 152, 219, 0.1);
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin: 10px 0;
+                }
+            """)
+            layout.addWidget(comparison_label)
+
         # Contenedor principal
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
@@ -502,7 +533,7 @@ class ResultsWindow(QMainWindow):
         )
         content_layout.addWidget(xp_frame)
 
-        # Nivel (solo si subió de nivel)
+        # Nivel (solo si subio de nivel)
         if results_data.get('level_up_message'):
             level_frame = self.create_section(
                 "¡Subiste de nivel!",

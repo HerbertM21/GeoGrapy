@@ -8,7 +8,7 @@ RESOURCE_PATH = BASE_DIR / 'resources'
 STYLE_PATH = RESOURCE_PATH / 'styles'
 ICON_PATH = RESOURCE_PATH / 'icon'
 IMAGE_PATH = RESOURCE_PATH / 'images'
-FONT_PATH = RESOURCE_PATH / 'fonts'  # Nueva ruta para las fuentes
+FONT_PATH = RESOURCE_PATH / 'fonts'
 DATA_PATH = BASE_DIR / 'src' / 'data'
 CONFIG_PATH = DATA_PATH / 'config'
 

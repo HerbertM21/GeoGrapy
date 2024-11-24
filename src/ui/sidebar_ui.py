@@ -1,11 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from src.ui.chat_page import ChatPage
 from src.utils.constants import ICON_PATH, RESOURCE_PATH, FONT_PATH, DATA_PATH, COUNTRIES_PATH
 from resources.styles.sidebar_styles import SidebarStyles
-import json
-import os
-from PyQt6.QtCore import QUrl
 from src.services.map_service import MapService
 
 
@@ -102,8 +98,7 @@ class Ui_MainWindow(object):
         self.setup_statistics_page()
         self.setup_questions_page()
         self.setup_chat_page()
-        self.setup_credits_page()
-        #self.setup_search_page()
+        self.setup_notes_page()
 
         self.verticalLayout_5.addWidget(self.stackedWidget)
 
@@ -136,25 +131,10 @@ class Ui_MainWindow(object):
         self.page_4_layout = QtWidgets.QVBoxLayout(self.page_4)
         self.stackedWidget.addWidget(self.page_4)
 
-    def setup_credits_page(self):
+    def setup_notes_page(self):
         self.page_5 = QtWidgets.QWidget()
-        self.gridLayout_6 = QtWidgets.QGridLayout(self.page_5)
-        self.label_8 = QtWidgets.QLabel("Créditos", parent=self.page_5)
-        self.label_8.setFont(QtGui.QFont("Arial", 15))
-        self.label_8.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.gridLayout_6.addWidget(self.label_8, 0, 0, 1, 1)
+        self.page_5_layout = QtWidgets.QVBoxLayout(self.page_5)
         self.stackedWidget.addWidget(self.page_5)
-
-    """
-    def setup_search_page(self):
-        self.page_6 = QtWidgets.QWidget()
-        self.gridLayout_7 = QtWidgets.QGridLayout(self.page_6)
-        self.label_9 = QtWidgets.QLabel("Search Page", parent=self.page_6)
-        self.label_9.setFont(QtGui.QFont("Arial", 15))
-        self.label_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.gridLayout_7.addWidget(self.label_9, 0, 0, 1, 1)
-        self.stackedWidget.addWidget(self.page_6)
-    """
 
     def setup_full_menu(self):
         # Configuración del menú completo
@@ -207,7 +187,7 @@ class Ui_MainWindow(object):
             ("Estadísticas", "dashboard-5-32.ico", "dashboard-5-48.ico"),
             ("Preguntas", "activity-feed-32.ico", "activity-feed-48.ico"),
             ("ChatGrapy", "product-32.ico", "product-48.ico"),
-            ("Créditos", "group-32.ico", "group-48.ico")
+            ("Apuntes", "group-32.ico", "group-48.ico")
         ]
 
         self.menu_buttons = []
@@ -354,7 +334,8 @@ class Ui_MainWindow(object):
         self.logo_label_3.setText(_translate("MainWindow", "GeoGrapy"))
 
         # Traducir textos de los botones del menú completo
-        button_texts = ["Inicio", "Estadísticas", "Preguntas", "ChatGrapy", "Créditos"]
+        button_texts = ["Inicio", "Estadísticas", "Preguntas", "ChatGrapy",
+                        "Apuntes"]
         for button, text in zip(self.menu_buttons, button_texts):
             button.setText(_translate("MainWindow", text))
         self.exit_btn_2.setText(_translate("MainWindow", "Salir"))

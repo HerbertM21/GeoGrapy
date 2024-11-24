@@ -10,6 +10,7 @@ from src.ui.exams_page import DifficultySelector
 from datetime import datetime
 from src.ui.stats_page import StatsPage
 from src.ui.login_page import LoginWindow
+from src.ui.notes_page import NotesPage
 
 
 class MainWindow(QMainWindow):
@@ -38,12 +39,15 @@ class MainWindow(QMainWindow):
         # Agregar chat page a su layout
         self.ui.page_4_layout.addWidget(self.chat_page)
 
+        # Agregar página de notas
+        self.notes_page = NotesPage()
+        self.ui.page_5.layout().addWidget(self.notes_page)  # o usando el layout específico si existe
+
         # Configurar navegación con manejo especial para la página de exámenes
         self.setup_navigation()
 
         # Conectar el cambio de página
         self.ui.stackedWidget.currentChanged.connect(self.on_stackWidget_currentChanged)
-
 
         # Marcar el botón de inicio
         self.ui.home_btn_2.setChecked(True)
@@ -122,9 +126,10 @@ class MainWindow(QMainWindow):
             else:
                 btn.setAutoExclusive(True)
 
-        # Añadir la actualización de estadísticas
-        if index == 1:  # Índice de la página de estadísticas
+        if index == 1:
             self.stats_page.refresh_stats()
+        elif index == 4:
+            pass
 
 
 def main():

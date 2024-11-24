@@ -34,19 +34,20 @@ class ExamButton(QPushButton):
         if not pixmap.isNull():
             pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)
             image_label.setPixmap(pixmap)
+        image_container.setStyleSheet("background: transparent;")
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter) # Centrar la imagen
         image_layout.addWidget(image_label) # Añadir la imagen al layout
 
         title_label = QLabel(self.exam_data['title'])
         title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #2c3e50;")
+        title_label.setStyleSheet("color: #2c3e50;  background: transparent;")
         title_label.setWordWrap(True)
 
         difficulty_label = QLabel(f"Dificultad: {self.exam_data['difficulty']}")
-        difficulty_label.setStyleSheet("color: #7f8c8d;")
+        difficulty_label.setStyleSheet("color: #7f8c8d;  background: transparent;")
 
         xp_label = QLabel(f"XP: {self.exam_data['xp']}")
-        xp_label.setStyleSheet("color: #27ae60;")
+        xp_label.setStyleSheet("color: #27ae60; background: transparent;")
 
         layout.addWidget(image_container)
         for label in [title_label, difficulty_label, xp_label]:
@@ -58,14 +59,24 @@ class ExamButton(QPushButton):
 
         self.setStyleSheet("""
             ExamButton {
-                background-color: #f5f6fa;
+                background-color: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #ffffff,
+                    stop:1 #d9d9d9
+                );
+                /*background-color: #f5f6fa*/;
                 border: 2px solid #ddd;
                 border-radius: 10px;
                 padding: 10px;
             }
             ExamButton:hover {
+                background-color: qlineargradient(
+                    x1:1, y1:1, x2:0, y2:0,
+                    stop:0 #ffffff,
+                    stop:1 #d9d9d9
+                );
                 border-color: #3498db;
-                background-color: #f0f8ff;
+                /*background-color: #f0f8ff;*/
             }
         """)
 
@@ -596,17 +607,32 @@ class ExamsPage(QWidget):
 
     @staticmethod
     def get_category_button_style(color):
+        # Convertir color a RGB
+        r, g, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+
+        # Aclarar cada componente
+        r1 = min(255, int(r * 1.3))
+        g1 = min(255, int(g * 1.3))
+        b1 = min(255, int(b * 1.3))
+
+        r2 = min(255, int(r * 0.65))
+        g2 = min(255, int(g * 0.65))
+        b2 = min(255, int(b * 0.65))
+        # Convertir de vuelta a hexadecimal
+        newColor1 = f"#{r1:02x}{g1:02x}{b1:02x}"
+        newColor2 = f"#{r2:02x}{g2:02x}{b2:02x}"
+
         return f"""
             QPushButton {{
                 background-color: {color};
                 color: white;
-                border: none;
                 border-radius: 5px;
                 font-weight: bold;
                 font-size: 14px;
                 padding: 10px;
             }}
             QPushButton:hover {{
-                background-color: {color}dd;
+                background-color: {newColor1};
+                color: {newColor2}
             }}
         """

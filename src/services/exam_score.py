@@ -5,6 +5,12 @@ class ExamScore:
         self.total_questions = total_questions
         self.xp_earned = xp_earned
 
+    def get_accuracy(self) -> float:
+        """Calcula y retorna el porcentaje de precisión"""
+        if self.total_questions == 0:
+            return 0.0
+        return (self.correct_answers / self.total_questions) * 100
+
     def __add__(self, other):
         if isinstance(other, ExamScore):
             return ExamScore(
@@ -25,5 +31,5 @@ class ExamScore:
         return (self.correct_answers / self.total_questions) < (other.correct_answers / other.total_questions)
 
     def __str__(self) -> str:
-        accuracy = (self.correct_answers / self.total_questions) * 100
+        accuracy = self.get_accuracy()
         return f"Puntuación: {self.correct_answers}/{self.total_questions} ({accuracy:.1f}%) - XP: {self.xp_earned}"

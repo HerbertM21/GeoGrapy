@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                             QFrame, QScrollArea, QGridLayout, QSpacerItem, QSizePolicy)
+                             QFrame, QScrollArea, QGridLayout, QSpacerItem, QSizePolicy, QPushButton)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QColor, QPainter, QPen
-from PyQt6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis  # Cambio aquí
+from PyQt6.QtGui import QFont, QColor, QPainter, QPen, QPixmap
+from PyQt6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
@@ -92,12 +92,12 @@ class StatsPage(QWidget):
         self.difficulty_label.setStyleSheet("color: #7f8c8d;")
 
         self.level_label = QLabel()
-        self.level_label.setFont(QFont("Arial", 18))
+        self.level_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
         self.level_label.setStyleSheet("""
-            color: #34495e;
-            background-color: #e8f4f8;
-            padding: 5px 15px;
-            border-radius: 10px;
+            color: #2c3e50;
+            padding: 5px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 5px;
         """)
 
         title_layout.addWidget(title)
@@ -112,11 +112,14 @@ class StatsPage(QWidget):
         stats_layout = QGridLayout(stats_widget)
         stats_layout.setSpacing(20)
 
-        # Lista de estadisticas a mostrar
+        # Lista de estadísticas a mostrar
         self.stat_labels = {
-            'total_xp': self.create_stat_card("XP Total", "0"),
-            'exams_completed': self.create_stat_card("Exámenes Completados", "0"),
-            'accuracy': self.create_stat_card("Precisión Media", "0%"),
+            'total_xp': self.create_stat_card("XP Total",
+                str(self.current_progress.get('total_xp', 0))),
+            'exams_completed': self.create_stat_card("Exámenes Completados",
+                str(self.current_progress.get('exams_completed', 0))),
+            'accuracy': self.create_stat_card("Precisión Media",
+                f"{self.current_progress.get('average_accuracy', 0):.1f}%"),
             'xp_to_next': self.create_stat_card("XP para siguiente nivel", "0")
         }
 
@@ -141,15 +144,23 @@ class StatsPage(QWidget):
         layout = QVBoxLayout(card)
 
         title_label = QLabel(title)
-        title_label.setFont(QFont("Arial", 12))
-        title_label.setStyleSheet("color: #7f8c8d;")
+        title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        title_label.setStyleSheet('''
+            color: white;
+            background-color: #232c38;
+            padding: 15px 10px;
+            border-radius: 10px;
+        ''')
+        layout.addWidget(title_label)
 
         value_label = QLabel(value)
         value_label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        value_label.setStyleSheet("color: #2c3e50;")
-        value_label.setObjectName("value_label")  # PARA poder actualizarlo después
+        value_label.setStyleSheet("""
+            color: #2c3e50;
+            margin-top: 10px;
+        """)
+        value_label.setObjectName("value_label")
 
-        layout.addWidget(title_label)
         layout.addWidget(value_label)
 
         return card
@@ -169,47 +180,141 @@ class StatsPage(QWidget):
 
         title = QLabel("Recompensas Desbloqueadas")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
-        title.setStyleSheet("color: #2c3e50; margin-bottom: 10px;")
+        title.setStyleSheet('''
+            color: white;
+            background-color: #232c38;
+            padding: 15px 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        ''')
 
-        self.rewards_layout = QVBoxLayout()
-        self.rewards_layout.setSpacing(10)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setMinimumHeight(180)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:horizontal {
+                height: 8px;
+                background: #F5F6FA;
+            }
+            QScrollBar::handle:horizontal {
+                background-color: #B3B3B3;
+                border-radius: 4px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+                width: 0px;
+            }
+        """)
+
+        rewards_container = QWidget()
+        rewards_container.setMinimumHeight(130)  # altura
+        rewards_container.setStyleSheet("background: transparent;")
+        self.rewards_layout = QHBoxLayout(rewards_container)
+        self.rewards_layout.setSpacing(15)
+        self.rewards_layout.setContentsMargins(0, 0, 0, 0)
+        self.rewards_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        scroll.setWidget(rewards_container)
 
         layout.addWidget(title)
-        layout.addLayout(self.rewards_layout)
+        layout.addWidget(scroll)
 
         return rewards_widget
 
-    def create_reward_label(self, text, reward_type):
-        label = QLabel(text)
+    def create_reward_card(self, text, reward_type):
+        card = QFrame()
+        card.setFixedSize(300, 130)
+
         if reward_type == 'title':
             style = """
-                background-color: #e8f6ff;
-                color: #2980b9;
+                QFrame {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #3498db, stop:1 #2980b9);
+                    border-radius: 10px;
+                }
             """
-            icon = "👑 "
+            icon_path = "resources/images/levels/corona.png"
+            category = "Título"
         elif reward_type == 'badge':
             style = """
-                background-color: #fff7e6;
-                color: #f39c12;
+                QFrame {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #11d6a2, stop:1 #1ed494);
+                    border-radius: 10px;
+                }
             """
-            icon = "🏅 "
-        else:  # las features
+            icon_path = "resources/images/levels/medalla.png"
+            category = "Insignia"
+        else:  # features
             style = """
-                background-color: #e8f8f5;
-                color: #27ae60;
+                QFrame {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #2ecc71, stop:1 #27ae60);
+                    border-radius: 10px;
+                }
             """
-            icon = "⭐ "
+            icon_path = "resources/images/levels/llave_inglesa.png"
+            category = "Característica"
 
-        label.setText(f"{icon}{text}")
-        label.setStyleSheet(f"""
-            QLabel {{
-                {style}
-                padding: 10px;
-                border-radius: 5px;
-                font-weight: bold;
-            }}
+        card.setStyleSheet(style)
+
+        # Crear layout horizontal para el icono y contenido
+        main_layout = QHBoxLayout(card)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(20)  # spaciado entre icono y contenido
+
+        # Icono/Imagen
+        icon_label = QLabel()
+        pixmap = QPixmap(icon_path)
+        if not pixmap.isNull():
+            scaled_pixmap = pixmap.scaled(
+                60, 70,  #  tamaño del icono
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+            icon_label.setPixmap(scaled_pixmap)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_label.setFixedSize(70, 80)  # contenedor del icono
+        icon_label.setStyleSheet("background: transparent; border: none;")
+
+        # Contenedor vertical para categoría y texto
+        content_layout = QVBoxLayout()
+        content_layout.setSpacing(8)  # espacio entre categoría y texto
+        content_layout.setContentsMargins(0, 5, 0, 5)  #  márgenes verticales
+
+        # Categoría
+        category_label = QLabel(category)
+        category_label.setFont(QFont("Arial", 10))
+        category_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        category_label.setStyleSheet("""
+            color: rgba(255, 255, 255, 0.8);
+            background: transparent;
+            padding: 2px 0px;
         """)
-        return label
+        category_label.setFixedHeight(20)  # Altura fija para la categoría
+
+        # Texto principal
+        text_label = QLabel(text)
+        text_label.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        text_label.setWordWrap(True)
+        text_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        text_label.setStyleSheet("color: white; background: transparent;")
+        text_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        #  widgets al layout de contenido
+        content_layout.addWidget(category_label)
+        content_layout.addWidget(text_label)
+
+        # layout principal
+        main_layout.addWidget(icon_label)
+        main_layout.addLayout(content_layout, 1)
+
+        return card
 
     def create_progress_chart(self):
         chart_widget = QFrame()
@@ -227,7 +332,13 @@ class StatsPage(QWidget):
 
         title = QLabel("Progreso de XP")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
-        title.setStyleSheet("color: #2c3e50;")
+        title.setStyleSheet('''
+            color: white;
+            background-color: #232c38;
+            padding: 15px 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        ''')
 
         self.chart_view = QChartView()
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -241,30 +352,27 @@ class StatsPage(QWidget):
         if not self.current_progress:
             return
 
-        # Obtener nivel y progreso actual
-        total_xp = self.current_progress.get('total_xp', 0)
-        level_progress = self.level_system.get_level_progress(total_xp)
+        # Obtener progreso de nivel
+        level_progress = self.level_system.get_level_progress(
+            self.current_progress.get('total_xp', 0)
+        )
 
-        # Actualizar etiquetas de nivel y dificultad
+        # Actualizar UI
         self.level_label.setText(f"Nivel {level_progress.level}")
         difficulty_info = self.level_system.get_difficulty_info()
         self.difficulty_label.setText(f"Modo: {difficulty_info['name']}")
 
-        # Actualizar estadisticas
         self.update_stats(level_progress)
-
-        # Actualizar recompensas
         self.update_rewards(level_progress.level)
-
-        # Actualizar gráfico de progreso
         self.update_progress_chart()
 
     def update_stats(self, level_progress: LevelProgress):
+        """Actualiza las estadísticas mostradas"""
         stats = {
-            'total_xp': f"{level_progress.total_xp:,} XP",
+            'total_xp': f"{self.current_progress.get('total_xp', 0):,} XP",
             'exams_completed': str(self.current_progress.get('exams_completed', 0)),
             'accuracy': (f"{self.current_progress.get('average_accuracy', 0):.1f}% "
-                         f"(Último: {self.current_progress.get('last_accuracy', 0):.1f}%)"),
+                       f"(Último: {self.current_progress.get('last_accuracy', 0):.1f}%)"),
             'xp_to_next': f"{level_progress.xp_for_next - level_progress.current_xp:,} XP"
         }
 
@@ -275,7 +383,7 @@ class StatsPage(QWidget):
                 value_label.setText(value)
 
     def update_rewards(self, level):
-        # Limpiar recompensas actuales
+        # Ñimpiar recompensas actuales
         while self.rewards_layout.count():
             item = self.rewards_layout.takeAt(0)
             if item.widget():
@@ -287,42 +395,41 @@ class StatsPage(QWidget):
         # Mostrar títulos
         if rewards.titles:
             for title in rewards.titles:
-                label = self.create_reward_label(title, 'title')
-                self.rewards_layout.addWidget(label)
+                card = self.create_reward_card(title, 'title')
+                self.rewards_layout.addWidget(card)
 
         # Mostrar insignias
         if rewards.badges:
             for badge in rewards.badges:
-                label = self.create_reward_label(badge, 'badge')
-                self.rewards_layout.addWidget(label)
+                card = self.create_reward_card(badge, 'badge')
+                self.rewards_layout.addWidget(card)
 
-        # Mostrar caracteristicas
+        # Mostrar características
         if rewards.features:
             for feature in rewards.features:
-                label = self.create_reward_label(feature, 'feature')
-                self.rewards_layout.addWidget(label)
+                card = self.create_reward_card(feature, 'feature')
+                self.rewards_layout.addWidget(card)
+
+        # Agregar un spacer al final
+        self.rewards_layout.addStretch()
 
     def update_progress_chart(self):
-        # Crear serie de datos de XP
         series = QLineSeries()
-
-        # Obtener historial de XP de los últimos 7 dias
         today = datetime.now()
         data_points = []
         max_xp = 0
 
+        # Obtener datos de XP diaria
         for i in range(7):
             date = today - timedelta(days=i)
             date_str = date.strftime("%Y-%m-%d")
             xp = self.current_progress.get(f'daily_xp_{date_str}', 0)
-            data_points.append((6 - i, xp))  # 6-i para que los días vayan de izquierda a derecha
+            data_points.append((6 - i, xp))
             max_xp = max(max_xp, xp)
 
-        # Añadir puntos a la serie
         for x, y in data_points:
             series.append(x, y)
 
-        # Crear y configurar el gráfico
         chart = QChart()
         chart.addSeries(series)
         chart.setTitle("XP Ganada por Día")
@@ -342,7 +449,7 @@ class StatsPage(QWidget):
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
 
-        # Aplicar estilos
+        # Estilos
         chart.setBackgroundVisible(False)
         chart.setTheme(QChart.ChartTheme.ChartThemeLight)
 
