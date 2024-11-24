@@ -24,7 +24,7 @@ class NoteEditor(QMainWindow):
 
     def setup_ui(self):
         self.setWindowTitle("Crear una nueva nota")
-        self.setFixedSize(450, 600)  # Tamaño fijo para mantener el diseño compacto
+        self.setFixedSize(450, 600)
 
         # Widget y layout principal
         main_widget = QWidget()
@@ -37,12 +37,12 @@ class NoteEditor(QMainWindow):
             }
         """)
 
-        # Layout principal con márgenes
+        # Layout principal con margenes
         layout = QVBoxLayout(main_widget)
         layout.setSpacing(16)
         layout.setContentsMargins(24, 24, 24, 24)
 
-        # Título de la ventana
+        # Titulo de la ventana
         title = QLabel("Crear una nueva nota")
         title.setFont(QFont("Segoe UI", 24))
         title.setStyleSheet("""
@@ -74,6 +74,7 @@ class NoteEditor(QMainWindow):
                     font-size: 14px;
                     line-height: 1.5;
                     background-color: white;
+                    color: #2c3e50;
                 }
                 QLineEdit:focus, QTextEdit:focus {
                     border: 1px solid #111;
@@ -89,7 +90,7 @@ class NoteEditor(QMainWindow):
         category_group = create_form_group("Categoria", self.category_input, "Ingrese una categoria")
         layout.addWidget(category_group)
 
-        # Título
+        # Titulo
         self.title_input = QLineEdit(self.note_data.get('title', ''))
         title_group = create_form_group("Titulo", self.title_input, "Ingrese un titulo")
         layout.addWidget(title_group)
@@ -148,7 +149,6 @@ class NoteEditor(QMainWindow):
         title = self.title_input.text().strip()
         content = self.editor.toPlainText().strip()
 
-        # Estilo base para QMessageBox
         message_box_style = """
             QMessageBox {
                 background-color: white;
@@ -170,7 +170,7 @@ class NoteEditor(QMainWindow):
             }
         """
 
-        # Validar que título y contenido no estén vacíos
+        # Validar que titulo y contenido no esten vacíos
         if not all([title, content]):
             msg = QMessageBox(self)
             msg.setStyleSheet(message_box_style)
@@ -179,21 +179,6 @@ class NoteEditor(QMainWindow):
             msg.setText("Por favor, complete al menos el título y el contenido de la nota.")
             msg.exec()
             return
-
-        # Si la categoría es "General", la convertimos a cadena vacía
-        if category.lower() == "general":
-            msg = QMessageBox(self)
-            msg.setStyleSheet(message_box_style)
-            msg.setIcon(QMessageBox.Icon.Information)
-            msg.setWindowTitle("Sugerencia")
-            msg.setText("Para crear una nota en la categoría 'General', deje el campo de categoría vacío.")
-            msg.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
-
-            if msg.exec() == QMessageBox.StandardButton.Ok:
-                self.category_input.clear()
-                category = ""
-            else:
-                return
 
         # Actualizar datos de la nota
         note_data = {
@@ -211,9 +196,7 @@ class NoteEditor(QMainWindow):
         try:
             # Intentar guardar la nota
             if self.notes_system.add_note(category, "default", note_data):
-                # Emitir señal de nota guardada
                 self.note_saved.emit()
-                # Cerrar la ventana
                 self.close()
             else:
                 msg = QMessageBox(self)
@@ -222,14 +205,6 @@ class NoteEditor(QMainWindow):
                 msg.setWindowTitle("Error")
                 msg.setText("No se pudo guardar la nota. Por favor, intente nuevamente.")
                 msg.exec()
-        except KeyError:
-            msg = QMessageBox(self)
-            msg.setStyleSheet(message_box_style)
-            msg.setIcon(QMessageBox.Icon.Warning)
-            msg.setWindowTitle("Error de categoría")
-            msg.setText("Ha ocurrido un error con la categoría seleccionada.\n"
-                        "Si desea crear una nota en la categoría general, deje el campo de categoría vacío.")
-            msg.exec()
         except Exception as e:
             msg = QMessageBox(self)
             msg.setStyleSheet(message_box_style)

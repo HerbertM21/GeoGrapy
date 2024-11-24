@@ -1,6 +1,5 @@
 import sys
 from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton
-from PyQt6 import QtCore
 from src.ui.sidebar_ui import Ui_MainWindow
 from src.ui.exams_page import ExamsPage
 from src.ui.chat_page import ChatPage

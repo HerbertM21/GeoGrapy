@@ -5,8 +5,6 @@ from typing import Dict, Optional
 
 
 class NotesSystem:
-    """Sistema para manejar la persistencia de apuntes"""
-
     def __init__(self, save_dir: Path = None):
         if save_dir is None:
             save_dir = Path.home() / '.geograpy' / 'notes'
@@ -16,9 +14,14 @@ class NotesSystem:
         # Archivo para guardar los apuntes
         self.notes_file = self.save_dir / 'user_notes.json'
 
-        # Estructura inicial de apuntes
+        # Estructura inicial de apuntes con categoría General por defecto
+        #Soluciona el error de default_notes
         self.default_notes = {
-            'categories': {},
+            'categories': {
+                'General': {
+                    'default': []
+                }
+            },
             'metadata': {
                 'last_modified': str(datetime.now()),
                 'version': '2.0'
@@ -34,9 +37,22 @@ class NotesSystem:
         try:
             with open(self.notes_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data.get('categories', {})
+                categories = data.get('categories', {})
+
+                # Asegurar que cada categoría tenga la estructura correcta
+                for category in categories:
+                    if not isinstance(categories[category], dict):
+                        categories[category] = {'default': []}
+                    if 'default' not in categories[category]:
+                        categories[category]['default'] = []
+
+                # Se debe asegurar de que siempre existe la categoría General
+                if 'General' not in categories:
+                    categories['General'] = {'default': []}
+
+                return categories
         except (FileNotFoundError, json.JSONDecodeError):
-            return {}
+            return {'General': {'default': []}}
 
     def save_notes(self, notes: dict) -> bool:
         """Guarda los apuntes del usuario"""
@@ -63,20 +79,29 @@ class NotesSystem:
         Añade una nueva nota
 
         Args:
-            category: Categoría de la nota
+            category: Categoria de la nota
             subcategory: Se mantiene por compatibilidad pero ya no se usa
             note_data: Diccionario con los datos de la nota
         """
-        notes = self.load_notes()
+        try:
+            notes = self.load_notes()
 
-        # Crear la categoría si no existe
-        if category not in notes:
-            notes[category] = {'default': []}
+            # Si la categoria está vacía o es solo espacios, usar "General"
+            category = "General" if not category.strip() else category.strip()
 
-        # Añadir nota a la categoría
-        notes[category]['default'].append(note_data)
+            # Verificar y crear la estructura completa si no existe
+            if category not in notes:
+                notes[category] = {}
+            if 'default' not in notes[category]:
+                notes[category]['default'] = []
 
-        return self.save_notes(notes)
+            # Añadir nota a la categoría
+            notes[category]['default'].append(note_data)
+
+            return self.save_notes(notes)
+        except Exception as e:
+            print(f"Error al añadir nota: {e}")
+            return False
 
     def get_categories(self) -> list:
         """Retorna la lista de categorías disponibles"""

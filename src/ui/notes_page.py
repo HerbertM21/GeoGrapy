@@ -197,7 +197,7 @@ class NoteCard(QFrame):
         # Título
         title = QLabel(self.note_data.get('title', 'Sin título'))
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
-        title.setStyleSheet("color: #1a1a1a; border: none;")
+        title.setStyleSheet("color: #2c3e50; border: none;")
         layout.addWidget(title)
 
         # Preview del contenido
