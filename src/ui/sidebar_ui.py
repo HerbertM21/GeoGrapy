@@ -170,10 +170,11 @@ class Ui_MainWindow(object):
             font_family = QtGui.QFontDatabase.applicationFontFamilies(self.font_id)[0]
             self.logo_label_3 = QtWidgets.QLabel("GeoGrapy", parent=self.full_menu_widget)
             self.logo_label_3.setFont(QtGui.QFont(font_family, 20))
-
+            self.logo_label_3.setStyleSheet("color: white;")#Gracias por tant
         else:
             self.logo_label_3 = QtWidgets.QLabel("GeoGrapy", parent=self.full_menu_widget)
             self.logo_label_3.setFont(QtGui.QFont("Arial", 20))
+            self.logo_label_3.setStyleSheet("color: white;")#y perdon por tan poco
 
         self.logo_label_3.setStyleSheet("color: white;")
         self.horizontalLayout_2.addWidget(self.logo_label_3)
