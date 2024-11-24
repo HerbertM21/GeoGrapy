@@ -11,12 +11,17 @@ from datetime import datetime
 from src.ui.stats_page import StatsPage
 from src.ui.login_page import LoginWindow
 from src.ui.notes_page import NotesPage
+from src.utils.constants import ICON_PATH
+from PyQt6.QtGui import QIcon
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.showMaximized()
+
+        # Establecer el icono de la ventana
+        self.setWindowIcon(QIcon(str(ICON_PATH / 'logo2_preview.png')))
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
