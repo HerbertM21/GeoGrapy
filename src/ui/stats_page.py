@@ -327,9 +327,10 @@ class StatsPage(QWidget):
                 border: 1px solid #e0e0e0;
             }
         """)
-        chart_widget.setMinimumHeight(300)
+        chart_widget.setMinimumHeight(500)
 
         layout = QVBoxLayout(chart_widget)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         title = QLabel("Progreso de XP")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
@@ -341,11 +342,41 @@ class StatsPage(QWidget):
             margin-bottom: 15px;
         ''')
 
+        # Crear scroll area
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:horizontal {
+                height: 8px;
+                background: #F5F6FA;
+            }
+            QScrollBar::handle:horizontal {
+                background-color: #B3B3B3;
+                border-radius: 4px;
+            }
+        """)
+
+        # Widget contenedor para el chart
+        chart_container = QWidget()
+        chart_container.setMinimumWidth(800)  # Ancho mínimo del gráfico
+        chart_layout = QVBoxLayout(chart_container)
+        chart_layout.setContentsMargins(20, 10, 20, 10)
+        chart_container.setStyleSheet("background: transparent;")
+
         self.chart_view = QChartView()
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+        chart_layout.addWidget(self.chart_view)
+
+        scroll.setWidget(chart_container)
 
         layout.addWidget(title)
-        layout.addWidget(self.chart_view)
+        layout.addWidget(scroll)
 
         return chart_widget
 
@@ -435,24 +466,29 @@ class StatsPage(QWidget):
         chart.addSeries(series)
         chart.setTitle("XP Ganada por Día")
 
-        # Configurar ejes
+        # Configurar eje X
         axis_x = QValueAxis()
         axis_x.setRange(0, 6)
         axis_x.setTickCount(7)
         axis_x.setLabelFormat("%d")
+        axis_x.setTitleText("Últimos 7 días")
+        axis_x.setLabelsAngle(-45)
 
+        # Configurar eje Y
         axis_y = QValueAxis()
         max_y = max_xp if max_xp > 0 else 100
         axis_y.setRange(0, max_y * 1.1)
+        axis_y.setLabelFormat("%d XP")
+        axis_y.setTitleText("Experiencia")
 
         chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
         chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
 
-        # Estilos
         chart.setBackgroundVisible(False)
         chart.setTheme(QChart.ChartTheme.ChartThemeLight)
+        chart.legend().hide()
 
         self.chart_view.setChart(chart)
 
