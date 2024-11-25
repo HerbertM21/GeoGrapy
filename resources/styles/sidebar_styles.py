@@ -8,10 +8,21 @@ class SidebarStyles:
             color: #788596;
         }
         QPushButton:hover {
-            background-color: rgba(86, 101, 115, 0.5);
+            /*background-color: rgba(86, 101, 115, 0.5);*/
+            background-color: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #232c38,
+                    stop:0.3 #233836,
+                    stop:1 #566573
+                );
         }
         QPushButton:checked {
-            background-color: rgba(86, 101, 115, 0.5); /* Igual al hover */
+            background-color: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0.25 #313e4f,
+                    stop:0 #233836,
+                    stop:1 #039668
+                );
             color: #fff;
         }
     """
@@ -83,7 +94,7 @@ class SidebarStyles:
         border-bottom-left-radius: 0px;
     """
 
-    HEADER_STYLE = "background-color: #f5f6fa;"
+    HEADER_STYLE = "background-color: #f5f6fa; "
     CENTRAL_WIDGET_STYLE = "background-color: #f5f6fa;"
 
     SCROLL_AREA_STYLE = """
