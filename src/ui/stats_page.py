@@ -11,6 +11,7 @@ from src.utils.constants import ICON_PATH
 
 
 class StatsPage(QWidget):
+    """Página de estadísticas del usuario"""
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -248,7 +249,7 @@ class StatsPage(QWidget):
                     border-radius: 10px;
                 }
             """
-            icon_path = "resources/images/levels/medalla.png"
+            icon_path = "resources/images/levels/medalla-de-oro.png"
             category = "Insignia"
         else:  # features
             style = """
@@ -273,13 +274,13 @@ class StatsPage(QWidget):
         pixmap = QPixmap(icon_path)
         if not pixmap.isNull():
             scaled_pixmap = pixmap.scaled(
-                60, 70,  #  tamaño del icono
+                40, 40,  #  tamaño del icono
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation
             )
             icon_label.setPixmap(scaled_pixmap)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_label.setFixedSize(70, 80)  # contenedor del icono
+        icon_label.setFixedSize(40, 40)  # contenedor del icono
         icon_label.setStyleSheet("background: transparent; border: none;")
 
         # Contenedor vertical para categoría y texto

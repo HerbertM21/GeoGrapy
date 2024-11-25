@@ -11,6 +11,7 @@ from datetime import datetime
 
 
 class ExamWindow(QMainWindow):
+    """Ventana principal para realizar un examen"""
     exam_completed = pyqtSignal(dict)
 
     def __init__(self, exam_data, level_system: AbstractLevelSystem = None,
@@ -460,6 +461,7 @@ class ExamWindow(QMainWindow):
 
 
 class ResultsWindow(QMainWindow):
+    """Ventana para mostrar los resultados del examen"""
     closed = pyqtSignal()
 
     def __init__(self, results_data, parent=None):

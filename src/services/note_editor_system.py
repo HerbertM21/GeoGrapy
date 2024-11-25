@@ -60,6 +60,7 @@ class NotesManager:
 
 
 class BaseNoteEditor(QMainWindow):
+    """Clase base para manejar la interfaz de edición de notas"""
     note_saved = pyqtSignal()
     close_signal = pyqtSignal()
 
@@ -248,6 +249,7 @@ class BaseNoteEditor(QMainWindow):
 
 
 class CreateNoteEditor(BaseNoteEditor):
+    """Clase para crear una nueva nota"""
     def __init__(self, category=None, parent=None):
         super().__init__(category=category, parent=parent)
         self.setWindowTitle("Crear una nueva nota")
@@ -280,6 +282,7 @@ class CreateNoteEditor(BaseNoteEditor):
 
 
 class EditNoteEditor(BaseNoteEditor):
+    """Clase para editar una nota existente"""
     def __init__(self, category, note_data, parent=None):
         note_data['category'] = category
         super().__init__(category=category, note_data=note_data, parent=parent)

@@ -27,6 +27,8 @@ class CustomTextEdit(QTextEdit):
         else:
             super().keyPressEvent(event)
 
+
+""" Clase para mostrar los mensajes en el chat """
 class MessageWidget(QFrame):
     def __init__(self, text, is_user=True, parent=None):
         super().__init__(parent)
@@ -110,6 +112,7 @@ class MessageWidget(QFrame):
         layout.addStretch() if not self.is_user else None
 
 
+""" Clase para la página de chat """
 class ChatPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -117,6 +120,48 @@ class ChatPage(QWidget):
         self.setup_ui()
         self.messages_to_process = []
         self.is_processing = False
+
+        # Verificar el estado del servicio
+        if not self.chat_service.is_available:
+            self.show_service_unavailable_message()
+        else:
+            self.add_message("¡Hola! Soy Grapy, tu asistente de geografía. ¿En qué puedo ayudarte?", False)
+
+    def show_service_unavailable_message(self):
+        """Muestra un mensaje cuando el servicio no está disponible"""
+        message = (
+            "⚠️ El servicio de chat no está disponible en este momento.\n\n"
+            "Para habilitarlo, sigue estos pasos:\n"
+            "1. Crea un archivo .env en la raíz del proyecto\n"
+            "2. Añade tu API KEY de OpenAI con el formato:\n"
+            "   OPENAI_API_KEY=tu_api_key_aquí\n"
+            "3. Reinicia la aplicación"
+        )
+        self.add_message(message, False)
+        self.input_area.setEnabled(False)
+        self.send_button.setEnabled(False)
+
+        # Cambiar el estilo de los elementos deshabilitados
+        self.input_area.setStyleSheet("""
+            QTextEdit {
+                border: 1px solid #E0E0E0;
+                border-radius: 8px;
+                padding: 8px;
+                font-size: 13px;
+                background-color: #f5f5f5;
+                color: #999;
+            }
+        """)
+        self.send_button.setStyleSheet("""
+            QPushButton {
+                background-color: #cccccc;
+                color: #666666;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+        """)
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -160,8 +205,6 @@ class ChatPage(QWidget):
 
         main_layout.addWidget(self.chat_area)
         main_layout.addWidget(input_panel)
-
-        self.add_message("¡Hola! Soy Grapy, tu asistente de geografía. ¿En qué puedo ayudarte?", False)
 
 
     def send_message(self):

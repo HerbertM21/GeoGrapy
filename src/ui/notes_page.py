@@ -9,6 +9,7 @@ from src.utils.constants import ICON_PATH
 
 
 class NoteViewerDialog(QDialog):
+    """Ventana modal para visualizar una nota completa"""
     def __init__(self, note_data, notes_page, parent=None):
         super().__init__(parent)
         self.note_data = note_data
@@ -171,6 +172,7 @@ class NoteViewerDialog(QDialog):
 
 
 class NoteCard(QFrame):
+    """Tarjeta para mostrar una nota"""
     def __init__(self, note_data, notes_page, parent=None):
         super().__init__(parent)
         self.note_data = note_data
@@ -235,6 +237,7 @@ class NoteCard(QFrame):
 
 
 class CategorySection(QWidget):
+    """Sección para mostrar las notas de una categoría"""
     def __init__(self, category_name, notes_page, parent=None):
         super().__init__(parent)
         self.category_name = category_name
@@ -331,6 +334,7 @@ class CategorySection(QWidget):
         self.notes_layout.addWidget(note_card)
 
 class NotesPage(QWidget):
+    """Página principal para mostrar las notas"""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.notes_system = NotesSystem()

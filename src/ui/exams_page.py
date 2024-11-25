@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 class ExamButton(QPushButton):
+    """Botón personalizado para mostrar información de un examen"""
     def __init__(self, exam_data):
         super().__init__()
         self.exam_data = exam_data
@@ -207,6 +208,7 @@ class DifficultySelector(QDialog):
 
 
 class ExamsPage(QWidget):
+    """Clase para visualizar la página de examenes y mantener la logica de negocios"""
     def __init__(self, parent=None, level_system: AbstractLevelSystem = None,
                  progress_persistence=None):
         super().__init__(parent)

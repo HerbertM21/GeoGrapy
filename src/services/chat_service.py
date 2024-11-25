@@ -10,19 +10,33 @@ class ChatService:
     def __init__(self):
         """Inicializa el servicio de chat"""
         load_dotenv()
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.client = None
         self.config_file = CONFIG_PATH / 'chatbot_config.txt'
         self.system_message = self.load_system_message()
+        self.is_available = self._initialize_client()
 
+    def _initialize_client(self) -> bool:
+        """Inicializa el cliente de OpenAI y verifica si está disponible
+
+        Returns:
+            bool: True si el cliente se inicializó correctamente, False en caso contrario
+        """
+        if not self.api_key:
+            print("Error: No se encontró la API KEY de OpenAI")
+            return False
+
+        try:
+            self.client = OpenAI(api_key=self.api_key)
+            # Hacer una pequeña prueba de conexión
+            self.client.models.list()
+            return True
+        except Exception as e:
+            print(f"Error al inicializar el cliente de OpenAI: {e}")
+            return False
 
     def load_system_message(self) -> str:
-        """Carga el mensaje del sistema desde el archivo de configuración
-
-            Args:
-                None
-            Returns:
-                str: El mensaje de sistema cargado del archivo de configuración
-        """
+        """Carga el mensaje del sistema desde el archivo de configuración"""
         default_message = (
             "Eres Grapy, un asistente virtual especializado en geografía. "
             "Tus creadores son Herbert Mayorga, Margarita Elgueta y Camilo Olmedo. "
@@ -36,7 +50,6 @@ class ChatService:
                     content = f.read().strip()
                     return content if content else default_message
             else:
-                # Crear el archivo con el mensaje por defecto si no existe
                 self.config_file.parent.mkdir(parents=True, exist_ok=True)
                 with open(self.config_file, 'w', encoding='utf-8') as f:
                     f.write(default_message)
@@ -47,11 +60,16 @@ class ChatService:
 
     def get_response(self, user_message: str) -> str:
         """Obtiene una respuesta de ChatGPT
+
         Args:
             user_message (str): El mensaje del usuario para procesar
         Returns:
-            str: La respuesta generada por el modelo GPT-4
+            str: La respuesta generada por el modelo o un mensaje de error
         """
+        if not self.is_available:
+            return ("Lo siento, el servicio de chat no está disponible en este momento. "
+                    "Por favor, verifica tu API KEY de OpenAI en el archivo .env")
+
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4",
@@ -63,7 +81,11 @@ class ChatService:
             )
             return response.choices[0].message.content
         except Exception as e:
-            return f"Error al conectarse con la API: {str(e)}"
+            error_message = str(e)
+            if "api_key" in error_message.lower():
+                return ("Error de autenticación con OpenAI. "
+                        "Por favor, verifica tu API KEY en el archivo .env")
+            return f"Error al procesar tu mensaje: {error_message}"
 
     def update_system_message(self, new_message: str) -> bool:
         """Actualiza el mensaje del sistema"""

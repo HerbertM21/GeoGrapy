@@ -5,6 +5,7 @@ from typing import Dict, Optional
 
 
 class NotesSystem:
+    """Sistema de gestión de apuntes del usuario"""
     def __init__(self, save_dir: Path = None):
         if save_dir is None:
             save_dir = Path.home() / '.geograpy' / 'notes'

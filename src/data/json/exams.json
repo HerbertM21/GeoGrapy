@@ -30,7 +30,7 @@
             "title": "Capitales del Mundo",
             "difficulty": "Medio",
             "xp": 150,
-            "icon": "capitales_icon.png",
+            "icon": "capitales_mundiales.png",
             "questions": [
                 {
                     "question": "¿Qué capital es esta?",
@@ -55,7 +55,7 @@
             "title": "Flora Tropical",
             "difficulty": "Medio",
             "xp": 120,
-            "icon": "resources/icon/flora_icon.png",
+            "icon": "resources/icon/flora_tropical.png",
             "questions": [
                 {
                     "question": "¿Qué planta es esta?",
@@ -73,7 +73,7 @@
             "title": "Fauna Amazónica",
             "difficulty": "Difícil",
             "xp": 200,
-            "icon": "fauna_icon.png",
+            "icon": "fauna_amazonica.png",
             "questions": [
                 {
                     "question": "¿Qué animal es este?",
