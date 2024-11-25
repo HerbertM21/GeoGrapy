@@ -46,6 +46,7 @@ class NoteViewerDialog(QDialog):
         title = QLabel(self.note_data.get('title', 'Sin título'))
         title.setObjectName("modalTitle")
         title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        title.setStyleSheet("color: #2c3e50;")
 
         close_button = QPushButton("✕")
         close_button.setObjectName("closeButton")

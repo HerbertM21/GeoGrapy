@@ -292,6 +292,7 @@ class StatsPage(QWidget):
         category_label = QLabel(category)
         category_label.setFont(QFont("Arial", 10))
         category_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        category_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         category_label.setStyleSheet("""
             color: rgba(255, 255, 255, 0.8);
             background: transparent;
