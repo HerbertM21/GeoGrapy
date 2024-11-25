@@ -1,7 +1,6 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 from src.utils.constants import CONFIG_PATH
 
 
@@ -15,8 +14,15 @@ class ChatService:
         self.config_file = CONFIG_PATH / 'chatbot_config.txt'
         self.system_message = self.load_system_message()
 
+
     def load_system_message(self) -> str:
-        """Carga el mensaje del sistema desde el archivo de configuración"""
+        """Carga el mensaje del sistema desde el archivo de configuración
+
+            Args:
+                None
+            Returns:
+                str: El mensaje de sistema cargado del archivo de configuración
+        """
         default_message = (
             "Eres Grapy, un asistente virtual especializado en geografía. "
             "Tus creadores son Herbert Mayorga, Margarita Elgueta y Camilo Olmedo. "
@@ -40,7 +46,12 @@ class ChatService:
             return default_message
 
     def get_response(self, user_message: str) -> str:
-        """Obtiene una respuesta de ChatGPT"""
+        """Obtiene una respuesta de ChatGPT
+        Args:
+            user_message (str): El mensaje del usuario para procesar
+        Returns:
+            str: La respuesta generada por el modelo GPT-4
+        """
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4",

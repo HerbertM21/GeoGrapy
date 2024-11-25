@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from src.utils.constants import ICON_PATH, RESOURCE_PATH, FONT_PATH, DATA_PATH, COUNTRIES_PATH
+from src.utils.constants import ICON_PATH, FONT_PATH
 from resources.styles.sidebar_styles import SidebarStyles
 from src.services.map_service import MapService
 
@@ -31,6 +31,7 @@ class Ui_MainWindow(object):
         self.font_id = QtGui.QFontDatabase.addApplicationFont(str(font_path))
 
         MainWindow.setObjectName("GeoGrapy")
+        MainWindow.setWindowTitle("GeoGrapy")
         MainWindow.resize(1500, 900)
 
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
@@ -296,7 +297,6 @@ class Ui_MainWindow(object):
     def setup_final_configurations(self, MainWindow):
         MainWindow.setCentralWidget(self.centralwidget)
         self.setup_connections(MainWindow)
-        self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(5)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -330,15 +330,3 @@ class Ui_MainWindow(object):
         # Conexiones de los botones de salir
         self.exit_btn_1.clicked.connect(MainWindow.close)
         self.exit_btn_2.clicked.connect(MainWindow.close)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "GeoGrapy"))
-        self.logo_label_3.setText(_translate("MainWindow", "GeoGrapy"))
-
-        # Traducir textos de los botones del menú completo
-        button_texts = ["Inicio", "Estadísticas", "Preguntas", "ChatGrapy",
-                        "Apuntes"]
-        for button, text in zip(self.menu_buttons, button_texts):
-            button.setText(_translate("MainWindow", text))
-        self.exit_btn_2.setText(_translate("MainWindow", "Salir"))

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                          QPushButton, QLabel, QProgressBar, QMessageBox, QScrollArea, QFrame)
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QSize
+                          QPushButton, QLabel, QProgressBar, QScrollArea, QFrame)
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QPixmap, QFont
 from src.utils.constants import IMAGE_PATH
 from src.services.exam_score import ExamScore
@@ -450,6 +450,7 @@ class ExamWindow(QMainWindow):
 
     def closeEvent(self, event):
         """Maneja el evento de cierre de la ventana"""
+
         # Guardar progreso actual antes de cerrar
         current_progress = self.progress_persistence.load_progress('current_user')
         current_progress['last_session'] = str(datetime.now())
@@ -606,9 +607,11 @@ class ResultsWindow(QMainWindow):
         return frame
 
     def handle_menu(self):
+        """Maneja el botón de continuar"""
         self.closed.emit()
         self.close()
 
     def handle_retry(self):
+        """Maneja el botón de reintentar"""
         self.parent().reset_exam()
         self.close()

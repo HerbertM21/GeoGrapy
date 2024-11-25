@@ -1,26 +1,28 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                             QFrame, QPushButton, QScrollArea, QSizePolicy,
-                             QDialog, QTextEdit, QLineEdit, QComboBox, QMessageBox)
+                             QFrame, QPushButton, QScrollArea,
+                             QDialog, QTextEdit)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QIcon
-from pathlib import Path
 from src.services.notes_persistence import NotesSystem
-from src.services.note_editor import NoteEditor
+from src.services.note_editor_system import CreateNoteEditor, EditNoteEditor
 from src.utils.constants import ICON_PATH
 
 
 class NoteViewerDialog(QDialog):
-    def __init__(self, note_data, parent=None):
+    def __init__(self, note_data, notes_page, parent=None):
         super().__init__(parent)
         self.note_data = note_data
+        self.notes_page = notes_page
         self.editor = None
 
-        # hacer la ventana frameless
+        # hacer la ventana frameless pero sin modalidad
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
+        # Desactivar la interacción con otras ventanas
+        self.setModal(False)
+
         self.setup_ui()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def setup_ui(self):
         self.setWindowTitle(self.note_data.get('title', 'Nota'))
@@ -154,22 +156,25 @@ class NoteViewerDialog(QDialog):
         """)
 
     def edit_note(self):
-        self.editor = NoteEditor(
+        self.editor = EditNoteEditor(
             category=self.note_data.get('category', ''),
             note_data=self.note_data,
-            parent=self
+            parent=self.notes_page
         )
+        self.editor.note_saved.connect(self.notes_page.load_notes)
+        self.editor.close_signal.connect(self.close)
         self.editor.show()
-        self.close()
-
+        # Ocultamos la ventana mientras se edita
+        self.hide()
     def get_editor(self):
         return self.editor
 
 
 class NoteCard(QFrame):
-    def __init__(self, note_data, parent=None):
+    def __init__(self, note_data, notes_page, parent=None):
         super().__init__(parent)
         self.note_data = note_data
+        self.notes_page = notes_page
         self.setup_ui()
 
     def setup_ui(self):
@@ -202,6 +207,7 @@ class NoteCard(QFrame):
 
         # Preview del contenido
         content = str(self.note_data.get('content', ''))
+        # Limitar la vista previa a 50 caracteres
         preview_text = content[:50] + "..." if len(content) > 50 else content
         preview = QLabel(preview_text)
         preview.setWordWrap(True)
@@ -219,18 +225,20 @@ class NoteCard(QFrame):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def mousePressEvent(self, event):
+        """Manejar el evento de clic en la tarjeta"""
         if event.button() == Qt.MouseButton.LeftButton:
             self.show_note_viewer()
 
     def show_note_viewer(self):
-        viewer = NoteViewerDialog(self.note_data, self)
+        viewer = NoteViewerDialog(self.note_data, self.notes_page, self)
         viewer.exec()
 
 
 class CategorySection(QWidget):
-    def __init__(self, category_name, parent=None):
+    def __init__(self, category_name, notes_page, parent=None):
         super().__init__(parent)
         self.category_name = category_name
+        self.notes_page = notes_page
         self.setup_ui()
 
     def setup_ui(self):
@@ -238,7 +246,7 @@ class CategorySection(QWidget):
         main_layout.setSpacing(0)
         main_layout.setContentsMargins(0, 0, 0, 20)
 
-        # contenedor principal con estilo de tarjeta
+        # Contenedor principal con estilo de tarjeta
         card_container = QFrame()
         card_container.setStyleSheet("""
             QFrame {
@@ -315,13 +323,12 @@ class CategorySection(QWidget):
         # Contenedor de la tarjeta al layout principal
         main_layout.addWidget(card_container)
 
-        # Mantener la altura fija de la sección
+        # Altura fija para el contenedor de las notas
         self.setFixedHeight(450)  # Contenedor que almacenan las cards (notas)
 
     def add_note(self, note_data):
-        note_card = NoteCard(note_data)
+        note_card = NoteCard(note_data, self.notes_page, self)
         self.notes_layout.addWidget(note_card)
-
 
 class NotesPage(QWidget):
     def __init__(self, parent=None):
@@ -412,12 +419,11 @@ class NotesPage(QWidget):
         self.load_notes()
 
     def create_new_note(self):
-        editor = NoteEditor(parent=self)
-        # Conectar la señal note_saved al método load_notes
+        editor = CreateNoteEditor(parent=self)
         editor.note_saved.connect(self.load_notes)
         editor.show()
 
-    # manejar actualizacion de notas
+    # Manejar actualizacion de notas
     def show_note_viewer(self, note_data):
         viewer = NoteViewerDialog(note_data, self)
         editor = viewer.get_editor()
@@ -443,12 +449,12 @@ class NotesPage(QWidget):
         else:
             # Crear sección para cada categoría
             for category, notes_dict in notes.items():
-                category_section = CategorySection(category)
+                category_section = CategorySection(category, self)  #  self (NotesPage)
                 for notes_list in notes_dict.values():
                     for note in notes_list:
                         note['category'] = category
                         category_section.add_note(note)
                 self.categories_layout.addWidget(category_section)
 
-        # Añadir espacio al final para evitar que las categorías se pege al borde
+        # Añadir espacio al final para evitar que el último elemento se corte
         self.categories_layout.addStretch()

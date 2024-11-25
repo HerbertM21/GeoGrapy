@@ -33,7 +33,12 @@ class NotesSystem:
             self.save_notes(self.default_notes['categories'])
 
     def load_notes(self) -> dict:
-        """Carga los apuntes del usuario"""
+        """Carga los apuntes del usuario
+            Args:
+                None
+            Returns:
+                dict: Diccionario con todas las notas organizadas por categorías
+        """
         try:
             with open(self.notes_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -79,9 +84,15 @@ class NotesSystem:
         Añade una nueva nota
 
         Args:
-            category: Categoria de la nota
-            subcategory: Se mantiene por compatibilidad pero ya no se usa
-            note_data: Diccionario con los datos de la nota
+            category (str): Categoría de la nota
+            subcategory (str): Subcategoría (mantenido por compatibilidad temporal fase beta)
+            note_data (Dict): Datos de la nota
+                - title: título de la nota
+                - content: contenido de la nota
+                - created_at: fecha de creación
+                - modified_at: fecha de modificación
+        Returns:
+            bool: True si la nota se guardó correctamente, False en caso contrario
         """
         try:
             notes = self.load_notes()

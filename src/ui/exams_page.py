@@ -298,6 +298,7 @@ class ExamsPage(QWidget):
 
     def _setup_ui(self):
         """Configuración de la interfaz de usuario"""
+
         # Layout principal
         self.layout = QVBoxLayout(self)
         self.layout.setSpacing(20)
@@ -428,11 +429,11 @@ class ExamsPage(QWidget):
         exams_layout.setContentsMargins(0, 0, 0, 0)
 
         self.exams_scroll = QScrollArea()
-        self.exams_scroll.setWidgetResizable(True)
-        self.exams_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.exams_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.exams_scroll.setWidgetResizable(True) # El widget interno se ajusta al tamaño del ScrollArea
+        self.exams_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded) # Scroll horizontal si es necesario
+        self.exams_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) # Sin scroll vertical
         self.exams_scroll.setMinimumHeight(300)
-        self.exams_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.exams_scroll.setFrameShape(QFrame.Shape.NoFrame) # Sin borde
         self.exams_scroll.setStyleSheet("""
             QScrollArea {
                 background-color: #f5f6fa;

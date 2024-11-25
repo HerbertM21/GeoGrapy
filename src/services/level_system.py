@@ -111,7 +111,10 @@ class ImprovedLevelSystem(AbstractLevelSystem):
         - MULTIPLICADOR DE RECOMPENSAS MEDIO (1.2)
         - NO TIENE RESTRICCIONES DE RECOMPENSAS
 
-
+    - DIFICIL: Progresa de nivel de forma desafiante, con:
+        - MULTIPLICADOR DE RECOMPENSAS ALTO (1.5)
+        - RECOMPENSAS EXCLUSIVAS
+        - NIVEL MAXIMO MAS BAJO (80)
     """
 
     DIFFICULTIES = {
@@ -161,13 +164,32 @@ class ImprovedLevelSystem(AbstractLevelSystem):
         """Retorna el nombre de la dificultad actual"""
         return self._difficulty_name
 
+
     def calculate_xp_for_level(self, level: int) -> int:
+        """
+        Args:
+            level (int): Nivel para el cual calcular la XP necesaria
+        Returns:
+            int: Cantidad de XP necesaria para alcanzar el nivel especificado
+        """
+
         if level <= 1:
             return 0
         return int(self.base_xp * (self.xp_multiplier ** (level - 1)))
 
     def get_level_progress(self, total_xp: int) -> LevelProgress:
-        """Calcula el nivel actual y el progreso basado en la XP total"""
+        """Calcula el nivel actual y el progreso basado en la XP total
+
+            Args:
+                total_xp (int): Experiencia total acumulada
+            Returns:
+                LevelProgress: Objeto con información del progreso actual
+                    - level: nivel actual
+                    - current_xp: XP en el nivel actual
+                    - xp_for_next: XP necesaria para el siguiente nivel
+                    - total_xp: XP total acumulada
+                    - progress_percentage: porcentaje de progreso al siguiente nivel
+        """
         current_level = 1
         accumulated_xp = 0
         xp_for_next = self.calculate_xp_for_level(2)
@@ -235,6 +257,19 @@ class ImprovedLevelSystem(AbstractLevelSystem):
     def calculate_exam_rewards(self, exam_base_xp: int,
                                correct_answers: int,
                                total_questions: int) -> ExamRewards:
+        """
+        Args:
+            exam_base_xp (int): XP base del examen
+            correct_answers (int): Número de respuestas correctas
+            total_questions (int): Total de preguntas
+        Returns:
+            ExamRewards: Objeto con información de recompensas
+                - base_xp: XP base ganada
+                - completion_bonus: Bonificación por completar
+                - accuracy_bonus: Bonificación por precisión
+                - total_xp: XP total ganada
+                - accuracy: Porcentaje de precisión
+        """
         accuracy = correct_answers / total_questions
 
         # Bonificación base por completar
@@ -298,6 +333,16 @@ class JsonProgressPersistence(AbstractProgressPersistence):
         return self.save_dir / f"progress_{user_id}.json"
 
     def save_progress(self, user_id: str, progress_data: Dict[str, Any]) -> bool:
+
+        """
+        Args:
+            user_id (str): Identificador del usuario
+            progress_data (Dict): Datos de progreso a guardar
+        Returns:
+            bool: True si el progreso se guardó correctamente, False en caso contrario
+
+        """
+
         try:
             save_path = self.get_save_path(user_id)
             with open(save_path, 'w') as f:
@@ -308,6 +353,14 @@ class JsonProgressPersistence(AbstractProgressPersistence):
             return False
 
     def load_progress(self, user_id: str) -> Dict[str, Any]:
+
+        """
+        Args:
+            user_id (str): Identificador del usuario
+        Returns:
+            Dict: Datos de progreso del usuario o diccionario vacío si no existe
+        """
+
         try:
             save_path = self.get_save_path(user_id)
             if save_path.exists():

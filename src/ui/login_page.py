@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLineEdit,
                             QPushButton, QLabel, QFrame, QGraphicsBlurEffect)
-from PyQt6.QtGui import QFont, QShortcut,QFontDatabase, QPixmap, QColor
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QFont, QShortcut,QFontDatabase, QPixmap
+from PyQt6.QtCore import Qt
 from pathlib import Path
 import json
 from src.utils.constants import ICON_PATH, FONT_PATH, IMAGE_PATH

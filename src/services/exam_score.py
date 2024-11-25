@@ -1,5 +1,8 @@
 class ExamScore:
-    """Clase para manejar puntajes de exámenes."""
+    """Clase para manejar puntajes de exámenes.
+        Encapsulamos las estadisticas de un examen, en una clase para facilitar su manejo.
+        Se modificaron los métodos __add__, __eq__ y __lt__ para poder comparar y sumar puntajes de exámenes.
+    """
     def __init__(self, correct_answers: int, total_questions: int, xp_earned: int):
         self.correct_answers = correct_answers
         self.total_questions = total_questions
@@ -12,6 +15,7 @@ class ExamScore:
         return (self.correct_answers / self.total_questions) * 100
 
     def __add__(self, other):
+        """Suma dos puntajes de exámenes"""
         if isinstance(other, ExamScore):
             return ExamScore(
                 correct_answers=self.correct_answers + other.correct_answers,
@@ -21,11 +25,13 @@ class ExamScore:
         return NotImplemented
 
     def __eq__(self, other) -> bool:
+        """Compara dos puntajes de exámenes"""
         if not isinstance(other, ExamScore):
             return NotImplemented
         return (self.correct_answers / self.total_questions) == (other.correct_answers / other.total_questions)
 
     def __lt__(self, other) -> bool:
+        """Compara dos puntajes de exámenes"""
         if not isinstance(other, ExamScore):
             return NotImplemented
         return (self.correct_answers / self.total_questions) < (other.correct_answers / other.total_questions)

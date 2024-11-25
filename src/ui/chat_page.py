@@ -1,22 +1,26 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QTextEdit,
-                             QPushButton, QScrollArea, QLabel, QFrame, QSizePolicy)
-from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QSize
-from PyQt6.QtGui import QFont, QTextCursor, QTextDocument, QColor
+                             QPushButton, QScrollArea, QLabel, QFrame)
+from PyQt6.QtCore import Qt, pyqtSignal, QTimer
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QGraphicsDropShadowEffect
-from openai import OpenAI
-import os
-from dotenv import load_dotenv
-from src.utils.constants import RESOURCE_PATH, DATA_PATH, CONFIG_PATH, ICON_PATH
-from pathlib import Path
+from src.utils.constants import ICON_PATH
 from src.services.chat_service import ChatService
 from PyQt6.QtGui import QPixmap, QPainter
-
 
 # Clase para añadir la funcionalidad de enviar un mensaje al presionar Enter
 class CustomTextEdit(QTextEdit):
     enter_pressed = pyqtSignal()
 
     def keyPressEvent(self, event):
+        """Envía la señal enter_pressed cuando se presiona Enter
+            Enviar el mensaje solamente con Enter
+
+        Args:
+            event (QKeyEvent): Evento de teclado
+
+        Returns:
+            None
+        """
         if event.key() == Qt.Key.Key_Return and not event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
             self.enter_pressed.emit()
             event.accept()
@@ -161,6 +165,7 @@ class ChatPage(QWidget):
 
 
     def send_message(self):
+        """Envía el mensaje del usuario y obtiene la respuesta"""
         text = self.input_area.toPlainText().strip()
         if text:
             self.add_message(text, True)
@@ -169,11 +174,13 @@ class ChatPage(QWidget):
             self.add_message(response, False)
 
     def add_message(self, text, is_user):
+        """Añade un mensaje al chat"""
         message = MessageWidget(text, is_user)
         self.message_layout.addWidget(message)
         self.scroll_to_bottom()
 
     def scroll_to_bottom(self):
+        """Desplaza el scroll al final del chat"""
         QTimer.singleShot(100, lambda: self.chat_area.verticalScrollBar().setValue(
             self.chat_area.verticalScrollBar().maximum()
         ))
