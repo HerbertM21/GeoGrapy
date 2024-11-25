@@ -95,12 +95,12 @@ class BaseNoteEditor(QMainWindow):
         self.layout.setSpacing(16)
         self.layout.setContentsMargins(24, 24, 24, 24)
 
-        # Título de la ventana (será sobrescrito por las clases hijas)
+        # Título de la ventana (sobrescrito por las clases hijas en caso de cambios)
         self.window_title = QLabel()
-        self.window_title.setFont(QFont("Segoe UI", 24))
+        self.window_title.setFont(QFont("Arial", 24))
         self.window_title.setStyleSheet("""
             QLabel {
-                color: #111;
+                color: #2c3e50;
                 font-weight: 600;
                 margin-bottom: 24px;
             }
@@ -124,7 +124,7 @@ class BaseNoteEditor(QMainWindow):
 
         label = QLabel(label_text)
         label.setFont(QFont("Segoe UI", 14))
-        label.setStyleSheet("color: #111; font-weight: bold;")
+        label.setStyleSheet("color: #2c3e50; font-weight: bold;")
 
         widget.setPlaceholderText(placeholder_text)
         widget.setStyleSheet("""
