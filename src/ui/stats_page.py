@@ -179,7 +179,7 @@ class StatsPage(QWidget):
 
         layout = QVBoxLayout(rewards_widget)
 
-        title = QLabel("Recompensas Desbloqueadas")
+        title = QLabel("Reconocimientos")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setStyleSheet('''
             color: white;
