@@ -358,6 +358,7 @@ class NotesPage(QWidget):
         title.setFont(QFont("Arial", 24, QFont.Weight.Bold))
         title.setStyleSheet("color: #2c3e50;")
 
+        # .
         new_note_btn = QPushButton("Nueva Nota")
         new_note_btn.setIcon(QIcon(str(ICON_PATH / "plus.ico")))
         new_note_btn.setStyleSheet("""
