@@ -188,10 +188,10 @@ class Ui_MainWindow(object):
         # Configuración de botones
         buttons_config = [
             ("Inicio", "home-4-32.ico", "home-4-48.ico"),
-            ("Estadísticas", "dashboard-5-32.ico", "dashboard-5-48.ico"),
             ("Preguntas", "activity-feed-32.ico", "activity-feed-48.ico"),
             ("ChatGrapy", "product-32.ico", "product-48.ico"),
-            ("Apuntes", "group-32.ico", "group-48.ico")
+            ("Apuntes", "group-32.ico", "group-48.ico"),
+            ("Estadísticas", "dashboard-5-32.ico", "dashboard-5-48.ico")
         ]
 
         self.menu_buttons = []

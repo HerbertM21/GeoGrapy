@@ -214,7 +214,7 @@ class ExamsPage(QWidget):
         super().__init__(parent)
         self.level_system = level_system
         self.progress_persistence = progress_persistence
-        self.total_xp = 0  # Añadir esta línea
+        self.total_xp = 0  
 
         # Inicializar sistemas
         self.level_system = level_system
@@ -303,7 +303,7 @@ class ExamsPage(QWidget):
 
         # Layout principal
         self.layout = QVBoxLayout(self)
-        self.layout.setSpacing(20)
+        self.layout.setSpacing(0)
         self.layout.setContentsMargins(20, 20, 20, 20)
 
         # ScrollArea principal que contendrá todo excepto la barra de progreso
@@ -530,6 +530,15 @@ class ExamsPage(QWidget):
         level_widget.setMaximumHeight(100)
         level_layout = QVBoxLayout(level_widget)
         level_layout.setContentsMargins(10, 10, 10, 10)
+        level_widget.setStyleSheet("""
+            background: qradialgradient(
+                    cx: 0.5, cy: 0.5, radius: 1.0,
+                    fx: 0.5, fy: 0.0,
+                    stop: 0 rgba(52, 152, 219, 0.1),
+                    stop: 0.65 #f5f6fa,
+                    stop: 1 #f5f6fa
+                );
+        """)
 
         # Información detallada del nivel
         level_info = QGridLayout()
@@ -542,7 +551,7 @@ class ExamsPage(QWidget):
         self.level_label.setStyleSheet("""
             color: #2c3e50;
             padding: 5px;
-            background-color: rgba(52, 152, 219, 0.1);
+            background-color: transparent;
             border-radius: 5px;
         """)
         self.level_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
@@ -557,6 +566,17 @@ class ExamsPage(QWidget):
         """)
         self.exp_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
 
+        # Etiqueta de dificultad
+        self.difficulty_label = QLabel(f"MODO: {self.level_system.difficulty.name}")
+        self.difficulty_label.setStyleSheet("""
+            color: white;
+            padding: 5px;
+            background-color: #5c84ab;
+            border-radius: 5px;
+        """)
+        self.difficulty_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+
+        level_info.addWidget(self.difficulty_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         level_info.addWidget(self.level_label, 0, 1, alignment=Qt.AlignmentFlag.AlignCenter)
         level_info.addWidget(self.exp_label, 0, 2, alignment=Qt.AlignmentFlag.AlignRight)
 
