@@ -77,7 +77,7 @@
             "questions": [
                 {
                     "question": "¿Qué animal es este?",
-                    "image": "resources/images/fauna/jaguar.png",
+                    "image": "jaguar.png",
                     "options": ["Puma", "Jaguar", "Leopardo", "Tigre"],
                     "correct": "Jaguar",
                     "explanation": "El jaguar es el felino más grande de América"
