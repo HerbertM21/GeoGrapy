@@ -22,6 +22,13 @@ class ExamWindow(QMainWindow):
         self.correct_answers = 0
         self.questions = exam_data['questions']
 
+        # Score actual
+        self.current_score = ExamScore(
+            correct_answers=0,
+            total_questions=len(self.questions),
+            xp_earned=self.exam_data['xp']
+        )
+
         # Inicializar sistema de niveles y persistencia
         self.level_system = level_system or ImprovedLevelSystem()
         if progress_persistence is None:
@@ -229,47 +236,46 @@ class ExamWindow(QMainWindow):
                 self.options_layout.addWidget(button)
 
     def show_results(self):
-        # Crear objeto ExamScore para el intento actual
-        current_score = ExamScore(
-            correct_answers=self.correct_answers,
-            total_questions=len(self.questions),
-            xp_earned=self.exam_data['xp']
-        )
+        """Muestra los resultados del examen y actualiza el progreso del usuario"""
 
-        # Comparar con el último intento si existe
+        # Aplicar multiplicador de dificultad a la puntuación
+        difficulty_multiplier = self.level_system.difficulty.reward_multiplier
+        adjusted_score = self.current_score * difficulty_multiplier
+
+        # Comparar con el último intento
         comparison_message = ""
         if self.last_exam_score:
-            if current_score > self.last_exam_score:
+            if self.current_score > self.last_exam_score:
                 comparison_message = "¡Has mejorado desde tu último intento! 🎉"
-            elif current_score == self.last_exam_score:
+            elif self.current_score == self.last_exam_score:
                 comparison_message = "Mantuviste el mismo nivel que tu último intento 🎯"
             else:
                 comparison_message = "Sigue practicando para superar tu último intento 💪"
 
         # Calcular recompensas usando el sistema de niveles
         rewards = self.level_system.calculate_exam_rewards(
-            exam_base_xp=current_score.xp_earned,
-            correct_answers=current_score.correct_answers,
-            total_questions=current_score.total_questions
+            exam_base_xp=adjusted_score.xp_earned,
+            correct_answers=self.current_score.correct_answers,
+            total_questions=self.current_score.total_questions
         )
 
-        # Cargar y actualizar progreso
+        # Actualizar progreso del usuario
         old_total_xp = self.current_progress.get('total_xp', 0)
         new_total_xp = old_total_xp + rewards.total_xp
 
+        # Obtener progreso de nivel anterior y nuevo
         old_level_progress = self.level_system.get_level_progress(old_total_xp)
         new_level_progress = self.level_system.get_level_progress(new_total_xp)
 
-        # Calcular nueva precisión media usando ExamScore
+        # Calcular nueva precisión media
         total_exams = self.current_progress.get('exams_completed', 0)
-        old_accuracy = self.current_progress.get('average_accuracy', 0)
-
         if total_exams == 0:
-            new_accuracy = current_score.get_accuracy()
+            new_accuracy = self.current_score.get_accuracy()
         else:
-            new_accuracy = (old_accuracy * total_exams + current_score.get_accuracy()) / (total_exams + 1)
+            old_total_accuracy = self.current_progress.get('average_accuracy', 0) * (total_exams - 1)
+            new_accuracy = (old_total_accuracy + self.current_score.get_accuracy()) / total_exams
 
-        # Verificar subida de nivel
+        # Verificar subida de nivel y obtener mensaje
         level_up_message = ""
         if new_level_progress.level > old_level_progress.level:
             new_rewards = self.level_system.get_level_rewards(new_level_progress.level)
@@ -279,59 +285,59 @@ class ExamWindow(QMainWindow):
                 new_rewards
             )
 
-        # Guardar progreso actualizado
         progress_data = {
             'total_xp': new_total_xp,
             'level': new_level_progress.level,
             'last_exam_date': str(datetime.now()),
             'exams_completed': total_exams + 1,
             'average_accuracy': new_accuracy,
-            'last_accuracy': current_score.get_accuracy(),
-            'last_exam_score': current_score.correct_answers,
-            'last_exam_total': current_score.total_questions,
-            'last_exam_xp': current_score.xp_earned,
+            'last_accuracy': self.current_score.get_accuracy(),
+            'last_exam_score': self.current_score.correct_answers,
+            'last_exam_total': self.current_score.total_questions,
+            'last_exam_xp': adjusted_score.xp_earned,
             'difficulty': self.current_progress.get('difficulty', 'normal')
         }
 
-        # Actualizar el progreso manteniendo datos existentes
+        # Actualizar XP diaria
         if self.current_progress:
             today_date = datetime.now().strftime("%Y-%m-%d")
             daily_xp_key = f'daily_xp_{today_date}'
-            self.current_progress[daily_xp_key] = self.current_progress.get(daily_xp_key, 0) + rewards.total_xp
+            self.current_progress[daily_xp_key] = (
+                    self.current_progress.get(daily_xp_key, 0) + rewards.total_xp
+            )
             self.current_progress.update(progress_data)
             progress_data = self.current_progress
-
-        # Preparar datos para la ventana de resultados
-        results_data = {
-            'correct_answers': current_score.correct_answers,
-            'total_questions': current_score.total_questions,
-            'accuracy': current_score.get_accuracy(),
-            'rewards': rewards,
-            'new_level': new_level_progress.level,
-            'progress': new_level_progress,
-            'performance_message': self._get_performance_message(current_score.get_accuracy()),
-            'comparison_message': comparison_message
-        }
 
         # Guardar progreso
         self.progress_persistence.save_progress('current_user', progress_data)
 
-        # Emitir resultados
-        exam_results = {
-            'category': self.exam_data.get('category', ''),
-            'title': self.exam_data['title'],
-            'xp_earned': rewards.total_xp,
-            'correct_answers': current_score.correct_answers,
-            'total_questions': current_score.total_questions,
-            'accuracy': current_score.get_accuracy(),
+        # Preparar datos para la ventana de resultados
+        results_data = {
+            'correct_answers': self.current_score.correct_answers,
+            'total_questions': self.current_score.total_questions,
+            'accuracy': self.current_score.get_accuracy(),
+            'rewards': rewards,
             'new_level': new_level_progress.level,
-            'old_level': old_level_progress.level
+            'progress': new_level_progress,
+            'performance_message': self._get_performance_message(self.current_score.get_accuracy()),
+            'comparison_message': comparison_message
         }
 
         if level_up_message:
             results_data['level_up_message'] = level_up_message
 
-        # Mostrar ventana de resultados
+        exam_results = {
+            'category': self.exam_data.get('category', ''),
+            'title': self.exam_data['title'],
+            'xp_earned': rewards.total_xp,
+            'correct_answers': self.current_score.correct_answers,
+            'total_questions': self.current_score.total_questions,
+            'accuracy': self.current_score.get_accuracy(),
+            'new_level': new_level_progress.level,
+            'old_level': old_level_progress.level
+        }
+
+        # Ventana de resultadps
         results_window = ResultsWindow(results_data, self)
         results_window.closed.connect(lambda: self.handle_results_closed(exam_results))
         results_window.show()
@@ -393,7 +399,7 @@ class ExamWindow(QMainWindow):
             self.options_layout.itemAt(i).widget().setEnabled(False)
 
         if selected_option == correct_answer:
-            self.correct_answers += 1
+            self.current_score += 1
             self.show_feedback(True, current_question['explanation'])
         else:
             self.show_feedback(False, current_question['explanation'])
