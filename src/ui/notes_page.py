@@ -270,7 +270,7 @@ class CategorySection(QWidget):
         category_title.setStyleSheet('''
             QLabel {
                 color: white;
-                background-color: #232c38;
+                background-color: #04386b;
                 padding: 15px 10px;
                 border-radius: 10px;
                 margin-bottom: 15px;
