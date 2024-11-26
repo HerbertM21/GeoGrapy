@@ -168,6 +168,7 @@ class NoteViewerDialog(QDialog):
         self.editor.show()
         # Ocultamos la ventana mientras se edita
         self.hide()
+
     def get_editor(self):
         return self.editor
 
