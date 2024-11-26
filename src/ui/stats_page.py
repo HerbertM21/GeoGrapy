@@ -148,7 +148,7 @@ class StatsPage(QWidget):
         title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         title_label.setStyleSheet('''
             color: white;
-            background-color: #156abf;
+            background-color: #04386b;
             padding: 15px 10px;
             border-radius: 10px;
         ''')
@@ -183,7 +183,7 @@ class StatsPage(QWidget):
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setStyleSheet('''
             color: white;
-            background-color: #156abf;
+            background-color: #04386b;
             padding: 15px 10px;
             border-radius: 10px;
             margin-bottom: 15px;
@@ -337,7 +337,7 @@ class StatsPage(QWidget):
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setStyleSheet('''
             color: white;
-            background-color: #156abf;
+            background-color: #04386b;
             padding: 15px 10px;
             border-radius: 10px;
             margin-bottom: 15px;
