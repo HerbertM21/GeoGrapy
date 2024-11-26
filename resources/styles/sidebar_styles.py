@@ -19,8 +19,8 @@ class SidebarStyles:
         QPushButton:checked {
             background-color: qlineargradient(
                     x1:0, y1:0, x2:1, y2:0,
-                    stop:0.25 #313e4f,
                     stop:0 #233836,
+                    stop:0.25 #313e4f,
                     stop:1 #039668
                 );
             color: #fff;
