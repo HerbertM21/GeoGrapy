@@ -569,9 +569,9 @@ class ExamsPage(QWidget):
         # Etiqueta de dificultad
         self.difficulty_label = QLabel(f"MODO: {self.level_system.difficulty.name}")
         self.difficulty_label.setStyleSheet("""
-            color: white;
+            color: #4d769e;
             padding: 5px;
-            background-color: #5c84ab;
+            background-color: #e3f0fc;
             border-radius: 5px;
         """)
         self.difficulty_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
