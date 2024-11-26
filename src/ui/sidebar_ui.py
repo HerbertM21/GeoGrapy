@@ -92,14 +92,12 @@ class Ui_MainWindow(object):
         # StackedWidget para las páginas
         self.stackedWidget = QtWidgets.QStackedWidget(parent=self.widget_3)
 
-        # Home con WebView
-        self.setup_home_page()
-
-        # Otras páginas
-        self.setup_statistics_page()
-        self.setup_questions_page()
-        self.setup_chat_page()
-        self.setup_notes_page()
+        # Páginas en el nuevo orden
+        self.setup_home_page()  # índice 0
+        self.setup_questions_page()  # índice 1
+        self.setup_chat_page()  # índice 2
+        self.setup_notes_page()  # índice 3
+        self.setup_statistics_page()  # índice 4
 
         self.verticalLayout_5.addWidget(self.stackedWidget)
 
@@ -188,10 +186,10 @@ class Ui_MainWindow(object):
         # Configuración de botones
         buttons_config = [
             ("Inicio", "home-4-32.ico", "home-4-48.ico"),
-            ("Estadísticas", "dashboard-5-32.ico", "dashboard-5-48.ico"),
             ("Preguntas", "activity-feed-32.ico", "activity-feed-48.ico"),
             ("ChatGrapy", "product-32.ico", "product-48.ico"),
-            ("Apuntes", "group-32.ico", "group-48.ico")
+            ("Apuntes", "group-32.ico", "group-48.ico"),
+            ("Estadísticas", "dashboard-5-32.ico", "dashboard-5-48.ico")
         ]
 
         self.menu_buttons = []
@@ -301,11 +299,11 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def apply_styles_and_effects(self):
-        # Aplicar estilos a los widgets principales
+        # Estilos a los widgets principales
         self.full_menu_widget.setStyleSheet(SidebarStyles.FULL_MENU_STYLE)
         self.icon_only_widget.setStyleSheet(SidebarStyles.ICON_ONLY_STYLE)
 
-        # Aplicar efectos de sombra
+        # Efectos de sombra
         self.full_menu_widget.setGraphicsEffect(SidebarStyles.get_shadow_effect())
         self.icon_only_widget.setGraphicsEffect(SidebarStyles.get_shadow_effect())
         self.header_widget.setGraphicsEffect(SidebarStyles.get_bottom_shadow_effect())
@@ -321,7 +319,7 @@ class Ui_MainWindow(object):
             full_btn.toggled['bool'].connect(icon_btn.setChecked)
 
         # Conexiones para cambiar entre páginas
-        # Índices de páginas: 0=Home, 1=EstadIsticas, 2=Preguntas, 3=Chat, 4=Creditos
+        # Índices de páginas: 0=Home, 1=Preguntas, 2=ChatGrapy, 3=Apuntes, 4=Estadísticas
         for i, (icon_btn, menu_btn) in enumerate(zip(self.icon_buttons, self.menu_buttons)):
             page_index = i  # El índice corresponde al orden de las páginas
             icon_btn.clicked.connect(lambda checked, idx=page_index: self.stackedWidget.setCurrentIndex(idx))

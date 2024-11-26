@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         self.level_system = None  # Se inicializará cuando se elija la dificultad
 
         # Inicializar páginas
-        self.exams_page = None  # Se inicializará cuando se visite por primera vez
+        self.exams_page = None
         self.chat_page = ChatPage()
         # Página de estadísticas
         self.stats_page = StatsPage()
@@ -45,9 +45,9 @@ class MainWindow(QMainWindow):
 
         # Agregar página de notas
         self.notes_page = NotesPage()
-        self.ui.page_5.layout().addWidget(self.notes_page)  # o usando el layout específico si existe
+        self.ui.page_5.layout().addWidget(self.notes_page)
 
-        # Configurar navegación con manejo especial para la página de exámenes
+        # Navegación entre páginas
         self.setup_navigation()
 
         # Conectar el cambio de página
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         """Configura las conexiones de navegación"""
         for i, (menu_btn, icon_btn) in enumerate(zip(self.ui.menu_buttons, self.ui.icon_buttons)):
             page_index = i
-            if page_index == 2:  # Índice de la página de exámenes
+            if page_index == 1:
                 menu_btn.clicked.connect(lambda checked, idx=page_index: self.handle_exams_page())
                 icon_btn.clicked.connect(lambda checked, idx=page_index: self.handle_exams_page())
             else:
@@ -69,7 +69,11 @@ class MainWindow(QMainWindow):
                 icon_btn.clicked.connect(lambda checked, idx=page_index: self.ui.stackedWidget.setCurrentIndex(idx))
 
     def handle_exams_page(self):
-        """Maneja la navegación a la página de exámenes"""
+        """Maneja la navegación a la página de exámenes
+            - Se debe personalizar la navegación a la página de exámenes debido
+            a la funcionalidad de elección de dificultad si es primera vez que se accede
+
+        """
         if self.exams_page is None:
             # Primero cargar el progreso existente
             current_progress = self.progress_persistence.load_progress('current_user')
@@ -94,7 +98,7 @@ class MainWindow(QMainWindow):
             )
             self.ui.page_3_layout.addWidget(self.exams_page)
 
-        self.ui.stackedWidget.setCurrentIndex(2)
+        self.ui.stackedWidget.setCurrentIndex(1)
 
     def show_difficulty_selector(self) -> str:
         """Muestra el selector de dificultad al entrar por primera vez"""
@@ -117,7 +121,8 @@ class MainWindow(QMainWindow):
             })
             return difficulty
 
-        return None  # Si el usuario cancela la selección
+        # Si cancela la seleccion
+        return None
 
     def on_stackWidget_currentChanged(self, index):
         btn_list = self.ui.icon_only_widget.findChildren(QPushButton) \
